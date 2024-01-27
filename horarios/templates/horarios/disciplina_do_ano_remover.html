@@ -1,0 +1,98 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+    main {
+        display: flex;
+        flex-direction:column;
+        align-items: center;
+        justify-contents: center;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    form {
+        display: flex;
+        flex-direction:column;
+        align-items: flex-start;
+        justify-contents: center;
+    }
+
+    button {
+        padding:5px 5px;
+        margin: 0 5px;
+        border-radius: 20px;
+    }
+
+    input[type='submit'] {
+        color: white;
+        background: blue;
+        width: 100%;
+    }
+
+    main a {
+        color: gray;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    .voltar {
+        width:100%;
+        padding:5px 0;
+        text-align:center;
+        color:grey;
+        border-color: black;
+    }
+
+    .voltar:hover {
+        background-color: lightgrey;
+        color: black;
+    }
+
+    .sem-vaga {
+        margin-left: 25px;
+        margin-bottom: 10px;
+    }
+
+
+{% endblock style %}
+
+
+
+{% block main %}
+
+
+
+    <h3 style="text-align:center">{{ disciplina }}<br> turma {{ turmadisciplina.turma }}</h3>
+
+    <form action="{% url 'horarios:disciplina_do_ano_remover' disciplina.id %}" method="POST">
+
+        {% csrf_token %}
+
+
+            <input type="hidden" name="turmadisciplina" value="{{ turmadisciplina.id }}">
+
+
+
+
+    {% if not inscrito %}
+            <input class="botao pointer btn btn-success" type="submit" value="&check; Inscrever" style="margin-top:0px">
+    {% else %}
+            <div style="width:100%; text-align:center; margin-bottom:5px;">
+                <a href="{% url 'horarios:cancelar_inscricao' disciplina.id %}" class="pointer btn botao-cancelar" style="margin-top:0px;">
+                    &#x2717; Cancelar a inscrição
+                </a>
+            </div>
+    {% endif %}
+    </form>
+
+<br><br>
+    <a href="{% url 'horarios:disciplinas' %}" class="botao pointer voltar" class="btn btn-success" style="padding:10px 5px">
+           < Voltar à lista de disciplinas
+        </a>
+
+
+{% endblock main %}

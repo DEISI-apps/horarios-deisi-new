@@ -1,0 +1,139 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+header {
+    background-color: black;
+    color: white;
+    padding: 2.5px 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+header h3 {margin:10px 0 10px 0px;}
+
+header a {
+    text-decoration: none;
+    color:white;
+}
+
+header nav a {
+    text-decoration: none;
+    padding: 2px;
+    margin-right:10px;
+    color:white;
+}
+
+header nav a:hover {
+    opacity: 0.7;
+}
+
+main {
+    padding: 30px 20px;
+    max-width: 500px;
+    margin:auto;
+}
+.helptext {
+    display:block;
+    font-style: italic;
+    font-size: 0.7rem;
+}
+
+.botao {
+    display:inline-block;
+    padding:5px 20px;
+    margin-top: 4ch;
+    border-radius: 10px;
+    color: blue;
+    border: 1px solid blue;
+    background: white;
+    text-decoration:none;
+}
+
+
+.largo {
+    display:block;
+}
+
+.botao:hover{
+    color: white !important;
+    background: darkblue !important;
+    border: 1px solid darblue !important;
+}
+
+
+.botao-listado {
+    display:block;
+    padding:5px 20px;
+    margin-top: 1ch;
+    border-radius: 10px;
+    color: grey;
+    border: 1px solid grey;
+    background: white;
+    text-decoration:none;
+}
+
+.botao-listado:hover{
+    color: white;
+    background: grey;
+}
+
+.botao-cinza {
+    display:block;
+    padding:5px 20px;
+    margin-top: 1ch;
+    border-radius: 10px;
+    color: white;
+    border: 1px solid grey;
+    background: grey;
+    text-decoration:none;
+    padding:0.5ch 1ch;
+    border-radius:1ch;
+    border: 1px solid black;
+    font-size:0.85rem;
+}
+
+.botao-cinza:hover{
+    background: black;
+}
+
+.botao-alert {
+    color: red;
+    border: 1px solid red;
+    width:100%;
+    padding:5px 0;
+    text-align:center;
+    }
+
+.botao-alert:hover {
+    border: 1px solid #8B0000;
+    color: #8B0000;
+    background: whitesmoke;
+}
+
+.botao-cancelar {
+    background-color:red;
+    text-decoration:none;
+    color:white;
+    border: 1px solid grey;
+    padding:0.5ch 1ch;
+    border-radius:1ch;
+    padding: 5px 10px;
+}
+
+
+.botao-cancelar:hover {
+     background-color:darkred;
+     font-weight:bold;
+}
+
+.pointer:hover {
+    cursor: pointer;
+}
+
+

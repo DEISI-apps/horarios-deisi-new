@@ -1,0 +1,82 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+main {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-contents: center;
+}
+
+form {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-contents: center;
+    max-width: 20ch;
+}
+
+input {
+    display: block;
+    padding:5px 10px;
+    margin: 5px;
+    border: 2px solid blue;
+    width: 100%;
+    border-radius: 20px;
+}
+input[type='submit'] {
+    color: white;
+    background: blue;
+}
+
+.registar{
+    color: white;
+    padding:5px 10px;
+    margin: 5px;blue;
+    background: #b5073d;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+    border-radius: 20px;
+}
+
+main a {
+    color: gray;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+{% endblock style %}
+
+
+
+{% block main %}
+
+<body>
+
+<h3>Login</h3>
+
+{% if not request.user.is_authenticated %}
+  {{ message }}
+{% endif %}
+
+<form action="{% url 'horarios:login' %}" method="POST">
+    {% csrf_token %}
+    <input type="text" name="credential" placeholder="número de aluno ou email">
+    <input type="password" name="password" placeholder="palavra-passe">
+    <input type="submit" value="Entrar">
+  {% comment %}
+  <a class="registar" href="{% url 'horarios:registar_aluno' %}">Registar</a>
+  {% endcomment %}
+</form>
+
+<a href="{% url 'horarios:fogot_password' %}">Recuperar palavra-passe</a>
+<p style="text-align:center;font-size:0.8em; color: grey;">
+    Caso nunca tenha entrado nesta plataforma,
+    faça a <a href="{% url 'horarios:fogot_password' %}">recuperação da palavra-passe</a>.
+    Perante qualquer dificuldade, contacte lucio.studer@ulusofona.pt</p>
+
+</body>
+
+{% endblock main %}
