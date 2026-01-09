@@ -3,15 +3,17 @@ from django.core.management.base import BaseCommand
 from horarios.models import Curso, Disciplina
 
 class Command(BaseCommand):
-    help = 'Fetch Disciplina data from JSON API and load into Disciplina model'
+    help = 'Fetch Disciplinas data from JSON API and load into Disciplina model'
 
     def add_arguments(self, parser):
         parser.add_argument('curso_sigla', type=str, help='The sigla of the Curso to associate with the Disciplinas')
+        parser.add_argument('ano_lectivo', type=str, help='The academic year (ex.: 25-26)')
 
     def handle(self, *args, **kwargs):
         curso_sigla = kwargs['curso_sigla']
-
-        api_url = f'https://dsdeisi.pythonanywhere.com/disciplinas-curso-json/{curso_sigla}/23-24'
+        ano_lectivo = kwargs['ano_lectivo']
+        
+        api_url = f'https://dsdeisi.pythonanywhere.com/disciplinas-curso-json/{curso_sigla}/{ano_lectivo}'
 
         try:
             # Make a GET request to the API

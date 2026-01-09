@@ -11,6 +11,8 @@ class Command(BaseCommand):
         parser.add_argument('ano', type=int, help='The year the Curso')
         parser.add_argument('turmas_dia', type=int, help='The number of turmas de dia of the Curso')
         parser.add_argument('turmas_noite', type=int, help='The number of turmas de noite of the Curso')
+        parser.add_argument('lotacao', type=int, help='The maximum number of students per class')
+        parser.add_argument('lotacao_avulso', type=int, help='The maximum number of students from other years')
 
     def handle(self, *args, **kwargs):
         curso_sigla = kwargs['curso_sigla']
@@ -18,6 +20,9 @@ class Command(BaseCommand):
         ano = kwargs['ano']
         turmas_dia = kwargs['turmas_dia']
         turmas_noite = kwargs['turmas_noite']
+        lotacao = kwargs['lotacao']
+        lotacao_avulso = kwargs['lotacao_avulso']
+        
 
         curso = Curso.objects.get(sigla=curso_sigla)
 
@@ -31,8 +36,8 @@ class Command(BaseCommand):
                 nome=nome,
                 curso=curso,
                 ano=ano,
-                lotacao=17,
-                lotacao_avulso=3,
+                lotacao=lotacao,
+                lotacao_avulso=lotacao_avulso,
                 )
 
             for disciplina in Disciplina.objects.filter(curso=curso, ano=ano):
