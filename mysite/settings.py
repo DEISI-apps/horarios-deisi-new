@@ -37,6 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Django Allauth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
+    # Add your apps below
     'horarios',
 ]
 
@@ -48,7 +55,22 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+         # Add the account middleware:
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+
+#####
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
 
 ROOT_URLCONF = 'mysite.urls'
 
@@ -60,6 +82,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
+ # `allauth` needs this from django
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -150,6 +173,26 @@ EMAIL_HOST_USER = 'cvp.django.app@gmail.com'
 EMAIL_HOST_PASSWORD = 'pxrqqpeiaobekqkq'  # usar uma google app password
 
 LOGIN_URL = 'horarios:login'
+
+
+#####
+
+SITE_ID = 1  # Required for django-allauth
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+LOGIN_REDIRECT_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 GRAPH_MODELS = {
   'all_applications': True,

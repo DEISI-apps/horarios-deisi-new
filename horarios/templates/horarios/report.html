@@ -1,0 +1,119 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+main {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-contents: flex-start;
+}
+
+div.disciplina  {
+    padding:10px;
+    margin: 3px;
+    border-radius: 5px;
+    width: 100%;
+}
+
+ .disciplina a,
+ .disciplina input {
+    display:inline-block;
+    font-size: 0.85rem;
+    padding: 2px 10px;
+    border-radius: 5px;
+    color: #B2089A;
+    border: 1px solid #B2089A;
+    background: white;
+    text-decoration: none;
+}
+ .disciplina a:hover,
+ .disciplina input:hover{
+    background:#e657d2;
+    color:white;
+    font-weight:bold;
+ }
+
+
+td.turma div:nth-child(2) {
+    display:none;
+}
+
+td.turma div {
+    display:flex;
+    flex-direction:column;
+    width: fit-content;
+    float: right;
+}
+
+td.turma span {
+    font-size:0.8em;
+}
+
+td.turma span:nth-child(2) {
+    width: 100%;
+}
+
+td.turma span a {
+    width: 100%;
+    text-align:center;
+    margin-top:3px;
+}
+
+div.menu a:nth-child(3) {
+    color:white;
+    background:black;
+    border: 2px solid white;
+}
+
+{% endblock style %}
+
+
+
+
+{% block main %}
+
+<h1>Report de Alunos Inscritos</h1>
+
+    {% for curso,turmas in info.items %}
+    <h1>{{curso}}</h1>
+        {% for turma,dados in turmas.items %}
+        <br>
+        <h3 style="background:var(--contraste); color:white; padding:15px; display:block;">Turma {{turma}}</h3>
+        <p><b>inscritos em {{turma}}</b></p>
+            <ul>
+            {% for aluno in dados.alunos %}
+            <li>{{aluno.user.username|slice:"1:"}} - {{aluno}}</li>
+            {% endfor %}
+            </ul>
+
+        <p><b>Disciplinas a que alguns dos alunos acima não estao inscritos:</b></p>
+            <ul>
+            {% for aluno,disciplinas in dados.alunos_out.items %}
+            {% if disciplinas|length != 0 %}
+            <li>{{aluno.user.username|slice:"1:"}} - {{aluno}}:
+                <ul>
+                {% for disciplina in disciplinas %}
+                    <li>{{disciplina}}</li>
+                {% endfor %}
+                </ul>
+            </li>
+            {% endif %}
+            {% endfor %}
+            </ul>
+
+            <p><b>Disciplinas avulso a que alguns alunos estão inscritos:</b></p>
+            <ul>
+            {% for disciplina,alunos in dados.alunos_avulso.items %}
+            <li>{{disciplina}}</li>
+                <ul>
+                {% for aluno in alunos %}
+                <li>{{aluno.user.username|slice:"1:"}} - {{aluno}}</li>
+                {% endfor %}
+                </ul>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endfor %}
+
+{% endblock main %}

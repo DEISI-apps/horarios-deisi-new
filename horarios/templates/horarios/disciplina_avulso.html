@@ -57,6 +57,16 @@
         margin-bottom: 10px;
 
     }
+    div.menu a:nth-child(3) {
+    padding: 6px 15px;
+    color: black;
+    background: white;
+    border: 0;
+    }
+
+    h2 {
+        text-align:center;
+    }
 
 {% endblock style %}
 
@@ -64,11 +74,15 @@
 
 {% block main %}
 
-    <h2>Inscrição em UCs de outros anos</h2>
+    <h2>Inscrição disciplinas de outros anos</h2>
 
-    <h3>Turmas de {{ disciplina }}:</h3>
+    <h3>Turmas de {{ disciplina }}</h3>
+    <a href="{{ horario.horario.url }}" class="botao-cinza" style=" margin-top:-0.5em; margin-bottom:1.5em; font-weight:300 !important; border-radius:20px; display:inline; text-decoration:none; text-align:center;">
+        <i class="fa fa-download"></i>
+        Ver horários das turmas
+    </a>
 
-    <form action="{% url 'horarios:disciplina_avulso' disciplina.id %}" method="POST">
+    <form action="{% url 'horarios:disciplina_avulso' disciplina.id 1 %}" method="POST">
 
         {% csrf_token %}
 
@@ -76,23 +90,24 @@
 
             {% if turmadisciplina.inscritos_avulso < turmadisciplina.turma.lotacao_avulso %}
 
-                <label>
+                <label style="text-align:center; width:100%;">
                     <input
                         type="radio"
                         name="turmadisciplina"
                         value="{{ turmadisciplina.id }}"
+                        required
                         {% if aluno in turmadisciplina.alunos_avulso.all %}checked="checked"{% endif %}
                     >
                     {% if aluno in turmadisciplina.alunos_avulso.all %}<b>{% endif %}
-
+                    {% if aluno in turmadisciplina.alunos_avulso.all %}
+                        Inscrito na turma
+                    {% endif %}
                     {{ turmadisciplina.turma }}
 
                     ({% if turmadisciplina.inscritos_avulso >= turma.lotacao_avulso %}turma completa,{% endif %}
                     {{ turmadisciplina.inscritos_avulso }} inscritos | {{ turmadisciplina.turma.lotacao_avulso }} vagas)
 
-                    {% if aluno in turmadisciplina.alunos_avulso.all %}
-                        - inscrito
-                    {% endif %}
+
                     {% if aluno in turmadisciplina.alunos_avulso.all %}</b>{% endif %}
 
                 </label>
@@ -109,22 +124,20 @@
                         <b>  - inscrito </b>
                     {% endif %}
                 </div>
-
             {% endif %}
-
 
         {% endfor %}
 
-        <input class="botao pointer btn btn-success" type="submit"
-          value="&check; {% if inscrito_nalguma %} Alterar {% else %} Inscrever {% endif%}" style="margin-top:0px">
+        <input class="botao-big" style="margin-top:0px; background:green;" type="submit"
+          value="&check; {% if inscrito_nalguma %} Alterar {% else %} Inscrever {% endif %}" >
 
-        <br><br>
-        <div style="font-weight:bold; width:100%; text-align:center;">Ou alternativamente, pode</div>
-        <a href="{% url 'horarios:cancelar_inscricao' disciplina.id %}" class="pointer btn botao-cancelar" style="margin-top:0px;width:100%; text-align:center; ">
-            &#x2717; Cancelar a inscrição a esta disciplina
+        {% if inscrito_nalguma %}
+        <a href="{% url 'horarios:cancelar_inscricao' disciplina.id %}" class="botao-big" style="width:100%;">
+            &#x2717; Remover a inscrição
         </a>
+        {% endif %}
         <br><br>
-        <a href="{% url 'horarios:disciplinas' %}" class="botao pointer voltar" class="btn btn-success">
+        <a href="{% url 'horarios:disciplinas' %}" class="botao-big" style="background:whitesmoke; color: grey;" style="width:100%;">
             < Voltar à lista de disciplinas
         </a>
     </form>

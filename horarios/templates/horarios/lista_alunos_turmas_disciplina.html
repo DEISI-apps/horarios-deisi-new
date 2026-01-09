@@ -1,0 +1,148 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+main {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-contents: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+form {
+    display: flex;
+    flex-direction:column;
+    align-items: flex-start;
+    justify-contents: center;
+    width:100%;
+}
+
+button {
+    padding:5px 5px;
+    margin: 0 5px;
+    border-radius: 20px;
+}
+
+input {
+    color: white;
+    width: 100%;
+}
+
+h2 a {
+    font-size: 0.85rem;
+    padding:3px 10px !important;
+    border: 1px solid black !important;
+}
+
+.voltar {
+    width:100%;
+    padding:5px 0;
+    text-align:center;
+    color:grey;
+    border-color: black;
+}
+
+.voltar:hover {
+    background-color: lightgrey;
+    color: black;
+}
+
+.sem-vaga {
+    margin-left: 25px;
+    margin-bottom: 10px;
+
+}
+
+div.menu a:nth-child(2) {
+    padding: 6px 15px;
+    color: black;
+    background: white;
+    border: 0;
+}
+
+.livre{
+    transition: color 0.1s ease, background 0.5s ease;
+    font-weight: bold;
+    margin-top:1em;
+}
+
+.livre:hover {
+    color:white;
+    background:var(--contraste);
+}
+
+
+.inverte{
+    transition: color 0.1s ease, background 0.5s ease;
+    font-weight: bold;
+    margin-top:1em;
+}
+
+.inverte:hover {
+    background:white;
+    color:var(--contraste);
+}
+
+.ocupada {
+    cursor:default;
+}
+
+.ocupada:hover {
+    filter: brightness(1);
+}
+
+td {
+ font-weight:300;
+ padding: 0.4em 0.2em;
+}
+
+h1 {text-align: center;}
+
+{% endblock style %}
+
+{% block main %}
+
+    <h1>{{ turmadisciplina.disciplina }}</h1>
+    <p style="font-weight:300; margin-top:-1em;">Listagem de alunos da turma <b>{{ turmadisciplina.turma }}</b> </p>
+
+    <table style="font-weight:300; margin-top:1em;">
+        {% for aluno in alunos %}
+            <tr>
+            <td>{{aluno.user.username}}</td><td><b>{{aluno.nome_completo}}</b></td>
+            </tr>
+        {% endfor %}
+        <tr ><td colspan="2" style="border-bottom:1px solid lightgrey;"></td></tr>
+        {% for aluno in alunos_avulso %}
+            <tr>
+            <td>{{aluno.user.username}}</td><td><b>{{aluno.nome_completo}}</b></td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+<p style="margin:2em 0 -0.5em; font-size:0.8em;">Emails dos alunos</p>
+<p style="background:whitesmoke; padding:1em; font-weight:100; font-size:0.3em;">
+{% for aluno in alunos %}
+    {{aluno.user.email}},
+{% endfor %}
+{% for aluno in alunos_avulso %}
+    {{aluno.user.email}},
+{% endfor %}
+</p>
+
+
+    <p style="margin-top:0.5em; width:100%;">
+        <a href="{% url 'horarios:turmas_disciplina' turmadisciplina.disciplina.id  %}" class="inverte botao-big ">Turmas de {{turmadisciplina.disciplina}}</a>
+    </p>
+    <p style="margin-top:-1em; width:100%;">
+        <a href="{% url 'horarios:lista_disciplinas' %}" class="botao-big-light livre">Lista de disciplinas de LEI </a>
+    </p>
+
+
+
+{% endblock main %}

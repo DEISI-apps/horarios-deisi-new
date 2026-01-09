@@ -29,7 +29,7 @@ class Aluno(models.Model):
 
     ANO_CHOICES = [(1,1), (2,2), (3,3)]
     ano = models.IntegerField(choices=ANO_CHOICES, null=True, default=None)
-    turma = models.CharField(max_length=100, default=None)
+    turma = models.CharField(max_length=100, blank=True, null=True, default=None)
 
     @property
     def nome_completo(self):
@@ -37,6 +37,9 @@ class Aluno(models.Model):
 
     def __str__(self):
         return self.nome_completo
+
+    class Meta:
+        ordering = ['user__first_name', 'user__last_name']
 
 
 class Disciplina(models.Model):
@@ -58,6 +61,7 @@ class Turma(models.Model):
     nome = models.CharField(max_length=100)
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='turmas', default=None)
     ano = models.IntegerField(null=True, blank=True)
+    semestre =  models.CharField(max_length=100, default='2')
     lotacao = models.IntegerField(null=True, blank=True)
     lotacao_avulso = models.IntegerField(null=True, blank=True)
 

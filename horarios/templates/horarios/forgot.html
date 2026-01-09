@@ -21,11 +21,11 @@ form {
 
 input {
     display: block;
-    padding:5px 10px;
-    margin: 5px;
+    padding:7px 20px;
+    margin: 5px 0;
     border: 2px solid #bf1d19;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 20px;
 }
 input[type='submit'] {
     color: white;
@@ -57,11 +57,8 @@ input[type='submit'] {
     <p style="text-align:center;font-weight:bold">
         Irá receber um email para definir nova palavra chave
         </p>
-    <p style="text-align:center;font-size:0.8em; color: grey;">
-        Caso nunca tenha entrado nesta plataforma,
-    faça a <a href="{% url 'horarios:fogot_password' %}">recuperação da palavra-passe</a> usando o email registado no Moodle.
-    Perante qualquer dificuldade, contacte lucio.studer@ulusofona.pt
-    </p>
+    <p style="text-align:center; color: grey; margin-top:3em;">Perante qualquer dificuldade ou para sugestões, <br>contacte <a href="mailto:lucio.studer@ulusofona.pt" style="font-size:1em; color: var(--contraste);">lucio.studer@ulusofona.pt</p>
+
 
     {% endif %}
 

@@ -1,0 +1,43 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+main a {
+    color: gray;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+{% endblock style %}
+
+
+
+{% block main %}
+
+{% if request.user.is_authenticated %}
+
+<h3>Olá {{ request.user.first_name }} {{ request.user.last_name }}</h3>
+
+<p>Nesta aplicação pode:</p>
+
+{% else %}
+<p>Esta aplicação permite escolher o horário dos cursos de 1º ciclo do DEISI.</p>
+<p>Autentique-se para:</p>
+{% endif %}
+
+<ol>
+    <li>Escolher a sua turma para este semestre</li>
+    <li>Inscrever-se em turmas de disciplinas de outros anos</li>
+    <li>Finalizar, receber um email com informação das inscrições que realizou</li>
+</ol>
+
+
+
+{% if request.user.is_authenticated %}
+    <a href="{% url 'horarios:turmas' %}" class="botao btn btn-success" style="background:blue; color:white; font-size:1.2em; padding: 5px 10px; text-align:center; border-radius:10px; width: 100%;">
+       Inscreva-se numa turma >
+    </a>
+{% endif %}
+
+
+{% endblock main %}

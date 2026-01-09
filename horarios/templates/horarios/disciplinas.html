@@ -10,9 +10,9 @@ main {
 }
 
 div.disciplina  {
-    padding:10px;
+    padding:10px 20px;
     margin: 3px;
-    border-radius: 5px;
+    border-radius: 10px;
     width: 100%;
 }
 
@@ -20,16 +20,16 @@ div.disciplina  {
  .disciplina input {
     display:inline-block;
     font-size: 0.85rem;
-    padding: 2px 10px;
-    border-radius: 5px;
-    color: #B2089A;
-    border: 1px solid #B2089A;
+    padding: 4px 0px;
+    border-radius: 20px;
+    color: black;
+    border: 1px solid black;
     background: white;
     text-decoration: none;
 }
  .disciplina a:hover,
  .disciplina input:hover{
-    background:#e657d2;
+    background:black;
     color:white;
     font-weight:bold;
  }
@@ -60,6 +60,14 @@ td.turma span a {
     margin-top:3px;
 }
 
+
+div.menu a:nth-child(3) {
+    padding: 6px 15px;
+    color: black;
+    background: white;
+    border: 0;
+}
+
 {% endblock style %}
 
 
@@ -68,28 +76,51 @@ td.turma span a {
 {% block main %}
 
 
-<h2>Inscrições em Disciplinas de {{ aluno.curso }} ({{semestre}}º sem.)</h2>
-<p style="margin-top:0px;text-align:center;font-size:0.8em; color: grey;">Disciplinas de {{ aluno.curso }}
-onde se pode inscrever/desinscrever e mudar a turma (para disciplinas de outros anos apenas).
-Deve escolher uma turma, ficando inscrito às UCs dessa turma, não podendo combinar turmas do mesmo ano.
-</p>
+<h1>Disciplinas</h1>
 
-{% for disciplinas in disciplinas_por_ano %}
-    <h2 style="margin-top:20px;margin-bottom:0;
+
+
+{% for disciplinas,horario in disciplinas_por_ano %}
+    <h2 style="margin:30px -2em 0;text-align:center;
                 {% if forloop.counter == aluno.ano %}
-                    color:blue;
+                    color:var(--contraste);
                     padding: 5px 10px;
                     border-radius:5px;
                 {% endif %};
                 ">
-       {% if forloop.counter == aluno.ano %} Inscrito no {{ forloop.counter}}º Ano, Turma {{ turma }}
-       {% else %} {{ forloop.counter}}º Ano {% endif %}
+        {% if forloop.counter == aluno.ano %}
+            <div>Inscrito no</div>
+            <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
+                <div style="padding-right:1em;">{{ forloop.counter}}º Ano, turma {{ turma }}</div>
+                <a href="{{ horario.horario.url }}" class="botao-cinza" style=" color:white; background:black; margin-top:0; font-weight:300 !important; border-radius:20px; display:inline; text-decoration:none; text-align:center;">
+                    <i class="fa fa-download"></i>
+                    Ver Horários
+                </a>
+            </div>
+            <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.3em;margin-bottom:0.2em;">
+           A turma escolhida aplica-se a todas as disciplinas <br>(não pode misturar turmas do {{ forloop.counter}}º ano).
+        </p>
+
+       {% else %}
+            <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
+                <div style="padding-right:0.5em"> {{ forloop.counter}}º Ano</div>
+                <a href="{{ horario.horario.url }}" class="botao-cinza" style=" color:white; background:black; margin-top:0; font-weight:300 !important; border-radius:20px; display:inline; text-decoration:none; text-align:center;">
+                    <i class="fa fa-download"></i>
+                    Ver Horários
+                </a>
+            </div>
+            <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.2em;margin-bottom:0.2em;">
+               Para disciplinas de outros anos pode escolher <br>a turma com vagas que melhor se encaixe no seu horário.
+            </p>
+        {% endif %}
     </h2>
+
+
     {% for disciplina,inscrito in disciplinas %}
         <div class="disciplina"
             style="
                 {% if inscrito %}
-                    background-color:blue; color:white;
+                    background-color:var(--contraste); color:white;
                 {% endif %};
                 ; border: 1px solid black;
                 "
@@ -99,7 +130,7 @@ Deve escolher uma turma, ficando inscrito às UCs dessa turma, não podendo comb
 
             <table style="border-collapse: collapse; width:100%;">
                 <tr>
-                    <td style="padding-right:10px; {% if inscrito %}font-weight:bold;{% endif %}">
+                    <td style="padding-right:10px; font-size:1em; font-weight:bold;">
                         {{ disciplina }}
                     </td>
                     <td class="turma" style="text-align:right;">
@@ -107,25 +138,20 @@ Deve escolher uma turma, ficando inscrito às UCs dessa turma, não podendo comb
 
                             {% if aluno.ano == disciplina.ano and aluno in turmadisciplina.alunos.all %}
                                 <div>
-                                    <span>Turma <b>{{ turmadisciplina.turma }}</b><br></span>
-                                    <span>
-                                        <a href="{% url 'horarios:disciplina_do_ano_remover' disciplina.id %}" >
-                                            <svg xmlns="http:w.w3.org/2000/svg" viewBox="0 0 640 512" width="12px"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM504 312V248H440c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V136c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H552v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg>
-                                            Desinscrever
-                                        </a>
-                                    </span>
+                                    <a href="{% url 'horarios:cancelar_inscricao' disciplina.id %}" style="padding: 6px 12px;">
+                                        Desinscrever
+                                    </a>
                                 </div>
                             {% endif %}
 
                             {% if aluno.ano != disciplina.ano and aluno in turmadisciplina.alunos_avulso.all %}
                                 <div>
-                                    <span>Turma <b>{{ turmadisciplina.turma }}</b><br></span>
-                                    <span>
-                                        <a href="{% url 'horarios:disciplina_avulso' disciplina.id %}" >
-                                            <svg xmlns="http:w.w3.org/2000/svg" viewBox="0 0 640 512" width="12px"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM504 312V248H440c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V136c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H552v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg>
+                                    <span>Turma&nbsp;<b>{{ turmadisciplina.turma }}</b><br></span>
+
+                                        <a href="{% url 'horarios:disciplina_avulso' disciplina.id 1 %}" style="padding: 6px 12px; text-align:center;">
                                             Alterar
                                         </a>
-                                    </span>
+
                                 </div>
 
                             {% endif %}
@@ -133,26 +159,19 @@ Deve escolher uma turma, ficando inscrito às UCs dessa turma, não podendo comb
 
                         {% if aluno.ano == disciplina.ano %}
                                 <div>
-
-                                    <span>Não está inscrito</span>
-                                    <span>
-                                        <a href="{% url 'horarios:disciplina_do_ano_remover' disciplina.id %}" >
-                                            <svg xmlns="http:w.w3.org/2000/svg" viewBox="0 0 640 512" width="12px"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM504 312V248H440c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V136c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H552v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg>
-                                            Inscrever
-                                        </a>
-                                    </span>
+                                    <a href="{% url 'horarios:fazer_inscricao' disciplina.id %}"  style="padding: 6px 12px; background:var(--contraste); color:white;">
+                                        Inscrever
+                                    </a>
                                 </div>
                         {% endif %}
 
                         {% if aluno.ano != disciplina.ano %}
                                 <div>
-                                    <span>Não está inscrito</span>
-                                    <span>
-                                    <a href="{% url 'horarios:disciplina_avulso' disciplina.id %}" >
-                                        <svg xmlns="http:w.w3.org/2000/svg" viewBox="0 0 640 512" width="12px"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM504 312V248H440c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V136c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H552v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg>
+
+                                    <a href="{% url 'horarios:disciplina_avulso' disciplina.id 0 %}" style="padding: 6px 12px; background:var(--contraste); color:white;">
                                         Inscrever
                                     </a>
-                                    </span>
+
                                 </div>
                         {% endif %}
                     </td>
@@ -165,4 +184,9 @@ Deve escolher uma turma, ficando inscrito às UCs dessa turma, não podendo comb
 
 </ul>
 
+{% comment %}
+    <a  class="botao pointer" href="{% url 'horarios:finalizar' %}" style="color:white;background:blue;font-weight:bold; font-size:1.2em; width:100%; text-align:center;">Finalizar</a>
+{% endcomment %}
+
 {% endblock main %}
+

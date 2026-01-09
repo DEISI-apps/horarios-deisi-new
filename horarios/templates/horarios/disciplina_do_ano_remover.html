@@ -58,15 +58,25 @@
     }
 
 
+    div.menu a:nth-child(3) {
+    padding: 6px 15px;
+    color: black;
+    background: white;
+    border: 0;
+    }
 {% endblock style %}
 
 
 
 {% block main %}
 
+    {% if not inscrito %}
+            <h1>Inscrição numa disciplina</h1>
+    {% else %}
+            <h1>Inscrição numa disciplina</h1>
+    {% endif %}
 
-
-    <h3 style="text-align:center">{{ disciplina }}<br> turma {{ turmadisciplina.turma }}</h3>
+    <h3 style="text-align:center">{{ disciplina }} | turma {{ turmadisciplina.turma }}</h3>
 
     <form action="{% url 'horarios:disciplina_do_ano_remover' disciplina.id %}" method="POST">
 
@@ -80,10 +90,11 @@
 
     {% if not inscrito %}
             <input class="botao pointer btn btn-success" type="submit" value="&check; Inscrever" style="margin-top:0px">
+            <p>Está inscrito na  turma {{ turmadisciplina.turma }} do {{ turmadisciplina.turma.ano }}º ano de {{ turmadisciplina.turma.curso }}. Todas as UCs do {{ turmadisciplina.turma.ano }}º ano devem ser dessa turma.</p>
     {% else %}
             <div style="width:100%; text-align:center; margin-bottom:5px;">
                 <a href="{% url 'horarios:cancelar_inscricao' disciplina.id %}" class="pointer btn botao-cancelar" style="margin-top:0px;">
-                    &#x2717; Cancelar a inscrição
+                    &#x2717; Desinscrever
                 </a>
             </div>
     {% endif %}

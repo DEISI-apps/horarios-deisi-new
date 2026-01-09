@@ -1,0 +1,101 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+main {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-contents: center;
+}
+
+div.disciplina  {
+    padding:10px;
+    margin: 3px;
+    border-radius: 5px;
+    width: 100%;
+}
+
+ .disciplina a,
+ .disciplina input {
+    display:inline-block;
+    font-size: 0.85rem;
+    padding: 2px 10px;
+    border-radius: 5px;
+    color: #B2089A;
+    border: 1px solid #B2089A;
+    background: white;
+    text-decoration: none;
+}
+ .disciplina a:hover,
+ .disciplina input:hover{
+    background:#e657d2;
+    color:white;
+    font-weight:bold;
+ }
+
+
+td.turma div:nth-child(2) {
+    display:none;
+}
+
+td.turma div {
+    display:flex;
+    flex-direction:column;
+    width: fit-content;
+    float: right;
+}
+
+td.turma span {
+    font-size:0.8em;
+}
+
+td.turma span:nth-child(2) {
+    width: 100%;
+}
+
+td.turma span a {
+    width: 100%;
+    text-align:center;
+    margin-top:3px;
+}
+
+div.menu a:nth-child(3) {
+    color:white;
+    background:black;
+    border: 2px solid white;
+}
+
+{% endblock style %}
+
+
+
+
+{% block main %}
+
+<h1>3. Finalizar</h1>
+<p>No {{semestre}}º semestre de {{ano_lectivo}} inscreveu-se, em {{aluno.curso}}, às seguintes cadeiras e respetivas turmas:</p>
+<ul>
+    {% for turmadisciplina in turmasdisciplinas %}
+    <li>
+        <b>{{ turmadisciplina.disciplina }}</b>, {{ turmadisciplina.turma }}
+{% comment %}
+        {% if aluno.ano==1 and aluno.curso.nome=='LEI' %}
+            {% if aluno.curso.nome[-1] > '3' %}
+                (teórica turma 1)
+            {% else %}
+                (teórica turma 2)
+            {% endif %}
+        {% endif %}
+{% endcomment %}
+    </li>
+    {% endfor %}
+</ul>
+
+<p>Pode rever as suas escolhas enquanto o período de inscrições estiver aberto.</p>
+
+{% comment %}
+<a  class="botao pointer" href="{% url 'horarios:finalizar' %}" style="color:white;background:blue;font-weight:bold; font-size:1.2em; width:100%; text-align:center;">Finalizar</a>
+{% endcomment %}
+
+{% endblock main %}

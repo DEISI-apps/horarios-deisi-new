@@ -1,0 +1,88 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+main {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-contents: flex-start;
+}
+
+div.disciplina  {
+    padding:10px;
+    margin: 3px;
+    border-radius: 5px;
+    width: 100%;
+}
+
+ .disciplina a,
+ .disciplina input {
+    display:inline-block;
+    font-size: 0.85rem;
+    padding: 2px 10px;
+    border-radius: 5px;
+    color: #B2089A;
+    border: 1px solid #B2089A;
+    background: white;
+    text-decoration: none;
+}
+ .disciplina a:hover,
+ .disciplina input:hover{
+    background:#e657d2;
+    color:white;
+    font-weight:bold;
+ }
+
+
+td.turma div:nth-child(2) {
+    display:none;
+}
+
+td.turma div {
+    display:flex;
+    flex-direction:column;
+    width: fit-content;
+    float: right;
+}
+
+td.turma span {
+    font-size:0.8em;
+}
+
+td.turma span:nth-child(2) {
+    width: 100%;
+}
+
+td.turma span a {
+    width: 100%;
+    text-align:center;
+    margin-top:3px;
+}
+
+div.menu a:nth-child(3) {
+    color:white;
+    background:black;
+    border: 2px solid white;
+}
+
+{% endblock style %}
+
+
+
+
+{% block main %}
+
+<h1>Report Alunos e suas disciplinas e turmas</h1>
+
+    <ul>
+        {% for aluno,disciplinas in info.items %}
+        <li>{{aluno}}:
+        <ul>
+            {% for disciplina in disciplinas %} <li>{{disciplina}} - {{disciplina.nome}}</li> {% endfor %}
+        </ul>
+        </li>
+        {% endfor %}
+    </ul>
+
+{% endblock main %}

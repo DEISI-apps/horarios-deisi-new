@@ -2,129 +2,175 @@
 
 {% block style %}
 
-    main {
-        display: flex;
-        flex-direction:column;
-        align-items: center;
-        justify-contents: center;
-    }
+main {
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    justify-contents: center;
+}
 
-    label {
-        display: block;
-        margin-bottom: 10px;
-    }
+label {
+    display: block;
+    margin-bottom: 10px;
+}
 
-    form {
-        display: flex;
-        flex-direction:column;
-        align-items: flex-start;
-        justify-contents: center;
-    }
+form {
+    display: flex;
+    flex-direction:column;
+    align-items: flex-start;
+    justify-contents: center;
+    width:100%;
+}
 
-    button {
-        padding:5px 5px;
-        margin: 0 5px;
-        border-radius: 20px;
-    }
+button {
+    padding:5px 5px;
+    margin: 0 5px;
+    border-radius: 20px;
+}
 
-    input[type='submit'] {
-        color: white;
-        background: blue;
-        width: 100%;
-    }
+input {
+    color: white;
+    width: 100%;
+}
 
-    h2 a {
-        font-size: 0.85rem;
-        padding:3px 10px !important;
-        border: 1px solid black !important;
-    }
+h2 a {
+    font-size: 0.85rem;
+    padding:3px 10px !important;
+    border: 1px solid black !important;
+}
 
-    .voltar {
-        width:100%;
-        padding:5px 0;
-        text-align:center;
-        color:grey;
-        border-color: black;
-    }
+.voltar {
+    width:100%;
+    padding:5px 0;
+    text-align:center;
+    color:grey;
+    border-color: black;
+}
 
-    .voltar:hover {
-        background-color: lightgrey;
-        color: black;
-    }
+.voltar:hover {
+    background-color: lightgrey;
+    color: black;
+}
 
-    .sem-vaga {
-        margin-left: 25px;
-        margin-bottom: 10px;
+.sem-vaga {
+    margin-left: 25px;
+    margin-bottom: 10px;
 
-    }
+}
+
+div.menu a:nth-child(2) {
+    padding: 6px 15px;
+    color: black;
+    background: white;
+    border: 0;
+}
+
+.livre{
+    transition: filter 0.3s ease, background 0.3s ease;
+    color: black;
+}
+
+.livre:hover {
+    filter: brightness(1.1);
+}
+
+.ocupada {
+    cursor:default;
+}
+
+.ocupada:hover {
+    filter: brightness(1);
+}
+
+p {
+    font-weight:300;
+    font-size:0.8em;
+}
 
 {% endblock style %}
 
-
-
 {% block main %}
 
-    <h1 style="text-align:left">Turmas de {{ aluno.curso }}</h1>
+    <h1 style="text-align:left;">Escolha a sua Turma</h1>
 
-    <p>Veja as turmas existentes em cada ano, com indicação do número de alunos inscritos e o número de vagas (inscritos/vagas).</p>
+    <p style="background:whitesmoke; padding:1em; margin-top:-1em; width:100%; line-height:1.5em; text-align:center;">Convenção de numeração das turmas:
+    <br><b>D01EINF03</b> lê-se <b>D</b>(Dia) <b>01</b> (1º ano) <b>EINF</b> (Eng.Informática) <b>03</b> (turma 3).
+    </p>
 
-    <form action="" method="POST">
+        {% if turma_corrige %}
+            <p style="font-weight:bold; color:var(--contraste)">
+                Tem {{ max_disciplinas }} disciplinas do {{ ano_que_deve_estar }}º ano, pelo que deve inscrever-se numa turma desse ano (em vez de disciplinas). Foram removidas todas as inscrições (turma e disciplinas). Recomece o processo escolhendo uma turma adequada.</p>
+        {% endif %}
 
-        {% csrf_token %}
+        {% if sem_turma %}
+            <p style="font-weight:bold; color:var(--contraste)">
+                Primeiro tem que se inscrever numa turma onde tenha a maioria das suas disciplinas.</p>
+        {% endif %}
 
         {% for turmas,horario in turmas_por_ano %}
             {% if turmas|length > 0 %}
 
             {% load static %}
-            <h2>
-                {{ forloop.counter }}º ano: turmas
-                <a href="{{ horario.horario.url }}" class="botao-cinza" style="text-decoration:none; text-align:center;"> <i class="fa fa-download"></i>
-                Horários</a>
+
+            <h2 style="display:flex; flex-direction:row; justify-content:center; align-items:center; gap:0.3em; margin-bottom:-0.5em;">
+                <span> {{ forloop.counter }}º ano</span>
+                <a href="{{ horario.horario.url }}" class="botao-cinza" style=" color:white; background:var(--contraste); margin-top:0; font-weight:300 !important; border-radius:20px; display:inline; text-decoration:none; text-align:center;">
+                    <i class="fa fa-download"></i>
+                    Ver Horários
+                </a>
             </h2>
 
-                {% for turma, aluno_inscrito in turmas %}
+            <p style="margin-bottom:-1em">A turma escolhida aplica-se a todas as disciplinas.</p>
+            {% if forloop.counter == 1 %}
+                <p style="margin-bottom:-1em; margin-top:1em;">
+                    No 1º ano, turmas 1 a 3 &rarr; teórica 1. Turmas 4 a 6 &rarr; teórica 2.
+                    </p>
+            {% endif %}
 
-                    {% if turma.inscritos < turma.lotacao %}
+            {% for turma, aluno_inscrito in turmas %}
+                {% if turma.inscritos < turma.lotacao %}
+                    <form action="{% url 'horarios:turmas' %}" method="POST">
+                        {% csrf_token %}
 
-                        <label>
-                            <input
-                                type="radio"
-                                name="turma"
-                                value="{{ turma.id }}"
-                                {% if aluno_inscrito %}checked="checked"{% endif %}
+                            <input type="hidden" name="turma" value="{{ turma.id }}">
+
+                            <button
+                                class="botao-big livre"
+                                type="submit"
+                                {% if aluno_inscrito %}style="width:100%; color:white; font-weight:bold;"
+                                {% else %}style="width:100%; background:lightgrey; font-weight:bold;"
+                                {% endif %}
                             >
-                            {% if aluno_inscrito %}
-                                <b style="font-size:1.2em; ">{{ turma }} ({{ turma.inscritos }} inscritos / {{ turma.lotacao }} vagas) - inscrito</b>
-                            {% else %}
-                                {{ turma }} ({{ turma.inscritos }} inscritos / {{ turma.lotacao }} vagas)
-                            {% endif %}
-                        </label>
+                                {% if aluno_inscrito %}
+                                    Inscrito na
+                                {% endif %}
 
-                    {% else %}
+                                {{ turma }}
+                                <span style="font-weight:300; font-size:0.7em; font-style:italic;">
+                                    ({{ turma.inscritos }} inscritos / {{ turma.lotacao }} vagas)
+                                </span>
+                            </button>
+                    </form>
+                {% else %}
 
-                        <div class="sem-vaga" style="color:grey;">
-                            {{ turma }}
-
+                    <button type="submit" class="botao-big ocupada" style="width:100%; background:lightgrey; font-weight:bold; color:grey;">
+                        {{ turma }}
+                        <span style="font-weight:300; font-size:0.7em; font-style:italic;">
                             (turma completa)
+                        </span>
+                    </button>
 
-                            {% if aluno in turma.alunos.all %}
-                                <b>  - inscrito </b>
-                            {% endif %}
-                        </div>
-
-                    {% endif %}
-                {% endfor %}
-                <input class="botao pointer" type="submit" value="&check; Inscrever" class="btn btn-success" style="font-weight:bold; font-size:1.2em; margin-top: 0.5ch">
+                {% endif %}
+            {% endfor %}
 
             <br><br>
             {% endif %}
         {% endfor %}
 
-    </form>
 
-    <a  class="botao pointer" href="{% url 'horarios:disciplinas' %}" style="font-weight:bold; font-size:1.2em; width:100%;">Editar inscrição em disciplinas</a>
-
-
+    <p style="margin-top:2em; width:100%;">
+        <a href="{% url 'horarios:disciplinas' %}" class="botao-big">Disciplinas</a>
+    </p>
 
 
 {% endblock main %}

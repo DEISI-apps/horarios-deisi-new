@@ -19,22 +19,22 @@ form {
 
 input {
     display: block;
-    padding:5px 10px;
+    padding:7px 20px;
     margin: 5px;
-    border: 2px solid blue;
+    border: 2px solid var(--contraste);
     width: 100%;
     border-radius: 20px;
 }
 input[type='submit'] {
     color: white;
-    background: blue;
+    background: var(--contraste);
 }
 
 .registar{
     color: white;
     padding:5px 10px;
-    margin: 5px;blue;
-    background: #b5073d;
+    margin: 5px;
+    background: var(--contraste);
     text-align: center;
     text-decoration: none;
     width: 100%;
@@ -55,27 +55,32 @@ main a {
 
 <body>
 
-<h3>Login</h3>
+<h1>Login</h1>
 
 {% if not request.user.is_authenticated %}
-  {{ message }}
+<b>{{ message }}</b>
 {% endif %}
 
 <form action="{% url 'horarios:login' %}" method="POST">
     {% csrf_token %}
     <input type="text" name="credential" placeholder="número de aluno ou email">
     <input type="password" name="password" placeholder="palavra-passe">
-    <input type="submit" value="Entrar">
+    <input type="submit" value="Entrar" class="botao-big" style="margin-top:0.2em;">
+
   {% comment %}
   <a class="registar" href="{% url 'horarios:registar_aluno' %}">Registar</a>
   {% endcomment %}
+
 </form>
 
-<a href="{% url 'horarios:fogot_password' %}">Recuperar palavra-passe</a>
-<p style="text-align:center;font-size:0.8em; color: grey;">
-    Caso nunca tenha entrado nesta plataforma,
-    faça a <a href="{% url 'horarios:fogot_password' %}">recuperação da palavra-passe</a>.
-    Perante qualquer dificuldade, contacte lucio.studer@ulusofona.pt</p>
+
+<p style="text-align:center; margin-top:3em; font-style:italic; font-weight:300;">
+    Caso seja a primeira vez que acede a esta aplicação <br>
+    ou se tenha esquecido da palavra-passe,
+    <br>faça a <a href="{% url 'horarios:fogot_password' %}"  style="font-size:1em; font-weight:bold; color: var(--contraste);">recuperação da palavra-passe</a>.
+    Use o email onde recebe as mensagens do Moodle.
+    <br><br>Perante qualquer dificuldade <b><a href="mailto:lucio.studer@ulusofona.pt" style="font-size:1em; color: var(--contraste);">contacte-nos</a></b>.</p>
+
 
 </body>
 

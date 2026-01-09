@@ -21,10 +21,21 @@ app_name = 'horarios'
 urlpatterns = [
     path('', views.horarios_view, name='horarios'),
     path('turmas/', views.turmas_view, name='turmas'),
+    path('sem_turma/', views.sem_turma_view, name='sem_turma'),
+    path('turmas_corrige/<str:max_disciplinas>/<str:ano_que_deve_estar>', views.turmas_corrige_view, name='turmas_corrige'),
     path('disciplinas/', views.disciplinas_view, name='disciplinas'),
-    path('disciplina_avulso/<str:disciplina_id>', views.disciplina_avulso_view, name='disciplina_avulso'),
+    path('disciplina_avulso/<str:disciplina_id>/<int:inscrito_nalguma>', views.disciplina_avulso_view, name='disciplina_avulso'),
     path('cancelar_inscricao/<str:disciplina_id>', views.cancelar_inscricao_view, name='cancelar_inscricao'),
-    path('disciplina_do_ano_remover/<str:disciplina_id>', views.disciplina_do_ano_remover_view, name='disciplina_do_ano_remover'),
+    path('fazer_inscricao/<str:disciplina_id>', views.fazer_inscricao_mesmo_ano_view, name='fazer_inscricao'),
+
+    path('finalizar/', views.finalizar_view, name='finalizar'),
+    path('report-turmas/', views.report_view, name='report-turmas'),
+    path('report-alunos/', views.report_alunos_view, name='report-alunos'),
+    path('report-alunos-sem-turma/', views.report_alunos_nao_escolheram_turma_view, name='report-alunos-sem-turma'),
+
+    path('lista_disciplinas/', views.lista_disciplinas_view, name="lista_disciplinas"),
+    path('turmas_disciplina/<str:disciplina_id>', views.lista_turmas_de_disciplina_view, name="turmas_disciplina"),
+    path('alunos_turma/<str:turmadisciplina_id>', views.lista_alunos_turma_view, name="alunos_turma"),
 
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEISI Apps</title>
+    <title>Horários</title>
 
+    {% load static %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'horarios/deisi-ball.png' %}">
     <script src="https://kit.fontawesome.com/5d1319edfb.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-pz7rlUZ6LlBiH6jBP7jnUpWm7+V8z2JEAOycfXlp/4XFsG0VdU8zVhI21fjvuGd2QHIJ+HEVZ2b2ufxHvmPLxQ==" crossorigin="anonymous" />
+
+  <!-- You can also load the Font Awesome 5 JavaScript (optional) -->
     {% load static %}
     <link rel="shortcut icon" type="image/png" href="{% static 'horarios/deisi-ball.png' %}">
     <link rel="stylesheet" href="{% static 'horarios/styles.css' %}">
@@ -17,13 +23,15 @@
     <!-- font-family Roboto -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap" rel="stylesheet">
-
-    <style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+<style>
 
         * {
-          box-sizing: border-box;
+          font-family: "Roboto";
         }
+
         .titulo {
             margin: auto;
             font-size: 2.5em;
@@ -94,30 +102,43 @@
             text-align: center;
             margin-top: 10px;
             font-size: 0.9em;
-            font-weight:bold;
         }
 
         div.menu a {
             display:inline-block;
-            padding: 2px 10px;
             margin-left:8px;
-            border-radius: 4px;
-            color: black;
-            background: white;
+            border-radius: 20px;
             text-decoration: none;
-        }
-        div.menu a:hover{
             background:black;
             color:white;
-            padding: 0 8px;
+            padding: 4px 13px;
             border: 2px solid white;
+        }
+        div.menu a:hover{
+            padding: 6px 15px;
+            color: black;
+            background: white;
+            border: 0;
          }
 
-         @media  screen and (max-width:500px) {
+         @media  screen and (max-width:750px) {
             div.menu {
                 display:none;
             }
          }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width:100%;
+            z-index: 1000;
+        }
+
+        main {
+            padding-top: 80px; /* Adjust the value based on your header's height */
+        }
+
     </style>
 
 
@@ -313,10 +334,11 @@
                 {% block title %}{% endblock %}
         </h3>
 
-        {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated and inscricoes_abertas %}
             <div class="menu">
-                <a href="{% url 'horarios:turmas' %}">Turmas</a>
-                <a href="{% url 'horarios:disciplinas' %}">Disciplinas</a>
+                <a href="{% url 'horarios:horarios' %}">A sua Turma</a>
+				<a href="{% url 'horarios:turmas' %}">Escolher Turma</a>
+				<a href="{% url 'horarios:disciplinas' %}">Disciplinas</a>
             </div>
         {% endif %}
 
@@ -325,15 +347,36 @@
 				{% if request.user.is_authenticated %}
 				<div class="dropdown">
 					<button class="dropbtn">
-						<i class="fa fa-bars"></i>
+						<i class="fa fa-bars" style="font-size:1.5em; "></i>
 					</button>
 					<div class="dropdown-content">
 						<a href="{% url 'horarios:logout' %}">
 						    Log out
 							<i class="fa fa-sign-out"></i>
 						</a>
-						<a href="{% url 'horarios:turmas' %}">Turmas</a>
-						<a href="{% url 'horarios:disciplinas' %}">Disciplinas</a>
+
+						{% if inscricoes_abertas %}
+    						<a href="{% url 'horarios:horarios' %}">A sua Turma</a>
+    						<a href="{% url 'horarios:turmas' %}">Escolher Turma</a>
+    						<a href="{% url 'horarios:disciplinas' %}">Disciplinas</a>
+						{% endif %}
+
+						{% if request.user.username.0 == "p" or request.user.username.0 == "f" %}
+    						<a></a>
+    						<span  style="color:var(--contraste); font-weight:bold;">Para docentes</span>
+    						<a href="{% url 'horarios:lista_disciplinas' %}" style="color:var(--contraste);">Listagens de Alunos</a>
+						{% endif %}
+
+						{% if request.user.username == "admin" or request.user.username == "p6069" or request.user.username == "p718" or request.user.username == "f3560" %}
+    						<a></a>
+    						<span  style="color:var(--contraste); font-weight:bold;">Para administradores</span>
+    						<a href="{% url 'horarios:report-turmas' %}"  style="color:var(--contraste);">Report Turmas <span style="font-size:0.5em">(demora a processar!)</span></a>
+    						<a href="{% url 'horarios:report-alunos' %}"  style="color:var(--contraste);">Report Alunos <span style="font-size:0.5em">(demora a processar!)</span></a>
+    						<a href="{% url 'horarios:report-alunos-sem-turma' %}"  style="color:var(--contraste);">Report Alunos sem turma</a>
+
+    						<a href="/admin/"  style="color:var(--contraste);">Admin Base Dados</a>
+						{% endif %}
+
 					</div>
 				</div>
 				{% else %}
@@ -341,6 +384,11 @@
 
 					<i class="fa fa-sign-in"></i> Login
 				</a>
+
+                {% load socialaccount %}
+                {% providers_media_js %}
+				<a href="{% provider_login_url 'google' %}"><button>Login with Google<button></a>
+
 				{% endif %}
 			{% endblock %}
         </nav>

@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 
-from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -20,8 +19,10 @@ from .forms import *
 import json, random, string
 import base64
 
+inscricoes_abertas = True
 semestre = 2
 ano_lectivo = '23-24'
+lista_disciplinas_recuperacao = ['Matemática I (2º Sem)', 'Fund Programação (2º Sem)', 'Fundamentos de Física (2º Sem)']
 
 # Create your views here.
 
@@ -30,7 +31,38 @@ def index_view(request):
 
 
 def horarios_view(request):
-    return render(request, 'horarios/horarios.html')
+
+    horarios = Horario.objects.filter(curso__sigla='LEI', ano_lectivo=ano_lectivo, semestre=semestre)
+    context = {
+        'horarios':horarios,
+    }
+
+    if not request.user.is_authenticated:
+        return render(request, 'horarios/horarios.html', context)
+
+    try:
+        aluno = Aluno.objects.get(user = request.user)
+    except:
+        logout(request)
+        return render(request, 'horarios/horarios.html', context)
+
+
+    turmasdisciplinas = []
+    for tdisc in TurmaDisciplina.objects.filter(turma__curso=aluno.curso).order_by('turma__ano'):
+        if aluno in tdisc.alunos.all() or aluno in tdisc.alunos_avulso.all():
+            turmasdisciplinas.append(tdisc)
+
+
+    context = {
+        'turmasdisciplinas': turmasdisciplinas,
+        'aluno':aluno,
+        'semestre':semestre,
+        'ano_lectivo':ano_lectivo,
+        'horarios':horarios,
+        'inscricoes_abertas': inscricoes_abertas,
+    }
+
+    return render(request, 'horarios/horarios.html', context)
 
 
 
@@ -60,7 +92,7 @@ def turmas_view(request):
                     # inscrever nesta turma
                     turmaDisciplina.alunos.add(aluno)
 
-            return redirect('horarios:turmas')
+            return redirect('horarios:disciplinas')
 
     horarios = Horario.objects.filter(curso=aluno.curso, ano_lectivo=ano_lectivo, semestre=semestre)
 
@@ -75,37 +107,62 @@ def turmas_view(request):
     return render(request, 'horarios/turmas.html', context)
 
 
+
+@login_required
+def turmas_corrige_view(request, max_disciplinas, ano_que_deve_estar):
+
+    aluno = Aluno.objects.get(user = request.user)
+
+    horarios = Horario.objects.filter(curso=aluno.curso, ano_lectivo=ano_lectivo, semestre=semestre)
+
+    context = {
+        'turmas_por_ano': [
+            ([ (turma, turma.inscrito(aluno)) for turma in Turma.objects.filter(curso=aluno.curso, ano=ano0+1).order_by('nome')], horario)
+            for ano0,horario in enumerate(horarios)
+        ],
+        'aluno': aluno,
+        'turma_corrige': True,
+        'max_disciplinas':max_disciplinas,
+        'ano_que_deve_estar':ano_que_deve_estar,
+    }
+
+    return render(request, 'horarios/turmas.html', context)
+
+
+@login_required
+def sem_turma_view(request):
+
+    aluno = Aluno.objects.get(user = request.user)
+
+    horarios = Horario.objects.filter(curso=aluno.curso, ano_lectivo=ano_lectivo, semestre=semestre)
+
+    context = {
+        'turmas_por_ano': [
+            ([ (turma, turma.inscrito(aluno)) for turma in Turma.objects.filter(curso=aluno.curso, ano=ano0+1).order_by('nome')], horario)
+            for ano0,horario in enumerate(horarios)
+        ],
+        'sem_turma': True,
+    }
+
+    return render(request, 'horarios/turmas.html', context)
+
+
+
 @login_required
 def disciplinas_view(request):
 
     aluno = Aluno.objects.get(user = request.user)
 
-    if request.method == 'POST':
-        disciplina_id = request.POST['disciplina']
-        disciplina = Disciplina.objects.get(id=disciplina_id)
+    if aluno.turma == None or aluno.turma == '' or aluno.turma == 'None' or aluno.ano not in [1,2,3]:
+        return redirect('horarios:sem_turma')
 
-        accao = request.POST['accao']
-
-        if accao == "desinscrever":
-
-            for turma in disciplina.turmas.all():
-                if aluno in turma.alunos.all():
-                    turma.alunos.remove(aluno)
-
-            disciplina.alunos.remove(aluno)
-
-
-        else:
-            disciplina.alunos.add(aluno)
-
-        disciplina.save()
-
+    horarios = Horario.objects.filter(curso=aluno.curso, ano_lectivo=ano_lectivo, semestre=semestre)
 
     context = {
         'disciplinas_por_ano': [
-            [ (disciplina,disciplina.inscrito(aluno)) for disciplina in Disciplina.objects.filter(semestre=semestre, curso=aluno.curso, ano=1).order_by('nome')],
-            [ (disciplina,disciplina.inscrito(aluno)) for disciplina in Disciplina.objects.filter(semestre=semestre, curso=aluno.curso, ano=2).order_by('nome')],
-            [ (disciplina,disciplina.inscrito(aluno)) for disciplina in Disciplina.objects.filter(semestre=semestre, curso=aluno.curso, ano=3).order_by('nome')],
+            ([ (disciplina,disciplina.inscrito(aluno)) for disciplina in Disciplina.objects.filter(semestre=semestre, curso=aluno.curso, ano=1).order_by('nome')], horarios[0]),
+            ([ (disciplina,disciplina.inscrito(aluno)) for disciplina in Disciplina.objects.filter(semestre=semestre, curso=aluno.curso, ano=2).order_by('nome')], horarios[1]),
+            ([ (disciplina,disciplina.inscrito(aluno)) for disciplina in Disciplina.objects.filter(semestre=semestre, curso=aluno.curso, ano=3).order_by('nome')], horarios[2]),
          ],
         'aluno': aluno,
         'turma': aluno.turma,
@@ -118,16 +175,14 @@ def disciplinas_view(request):
 
 
 @login_required
-def disciplina_avulso_view(request, disciplina_id):
+def disciplina_avulso_view(request, disciplina_id, inscrito_nalguma):
 
     aluno = Aluno.objects.get(user = request.user)
-    disciplina = Disciplina.objects.get(id=disciplina_id)
+    if aluno.turma == None or aluno.turma == '' or aluno.turma == 'None':
+        return redirect('horarios:sem_turma')
 
-    inscrito_nalguma = False
+    disciplina = Disciplina.objects.get(id=disciplina_id)
     turmasdisciplina = disciplina.turmasdisciplinas.all()
-    for tdisc in turmasdisciplina:
-            if aluno in tdisc.alunos_avulso.all():
-                inscrito_nalguma = True
 
     if request.method == 'POST':
 
@@ -135,8 +190,29 @@ def disciplina_avulso_view(request, disciplina_id):
         turmadisciplina = TurmaDisciplina.objects.get(id=turmadisciplina_id)
 
 
-
         if turmadisciplina.inscritos_avulso < turmadisciplina.turma.lotacao_avulso:
+
+            disciplinas = [
+                aluno.turmasdisciplinas.filter(turma__ano=1).count() + aluno.turmasdisciplinas_avulso.filter(turma__ano=1).count(),
+                aluno.turmasdisciplinas.filter(turma__ano=2).count() + aluno.turmasdisciplinas_avulso.filter(turma__ano=2).count(),
+                aluno.turmasdisciplinas.filter(turma__ano=3).count() + aluno.turmasdisciplinas_avulso.filter(turma__ano=3).count()
+            ]
+            max_disciplinas = max(disciplinas)
+            ano_que_deve_estar = disciplinas.index(max_disciplinas) + 1
+
+            if max_disciplinas >= 3 and aluno.ano != ano_que_deve_estar:
+                for turmaDisciplina in aluno.turmasdisciplinas.all():
+                    turmaDisciplina.alunos.remove(aluno)
+                for turmaDisciplina in aluno.turmasdisciplinas_avulso.all():
+                    turmaDisciplina.alunos_avulso.remove(aluno)
+
+                    aluno.turma=None
+                    aluno.ano=None
+                    aluno.save()
+
+                    return redirect('horarios:turmas_corrige', max_disciplinas=max_disciplinas, ano_que_deve_estar=ano_que_deve_estar)
+
+
 
             # desinscrever da outra turma, se estiver inscrito
             for tdisc in turmasdisciplina:
@@ -146,13 +222,16 @@ def disciplina_avulso_view(request, disciplina_id):
             # inscrever nesta turma
             turmadisciplina.alunos_avulso.add(aluno)
 
+
             return redirect('horarios:disciplinas')
 
     context = {
         'disciplina': disciplina,
-        'turmasdisciplina': disciplina.turmasdisciplinas.all(),
+        'turmasdisciplina': turmasdisciplina,
         'inscrito_nalguma': inscrito_nalguma,
         'aluno':aluno,
+        'horario': Horario.objects.get(curso=aluno.curso, ano_lectivo=ano_lectivo, semestre=semestre, ano=aluno.ano)
+
     }
 
     return render(request, 'horarios/disciplina_avulso.html', context)
@@ -168,6 +247,86 @@ def cancelar_inscricao_view(request, disciplina_id):
             tdisc.alunos_avulso.remove(aluno)
         if aluno in tdisc.alunos.all():
             tdisc.alunos.remove(aluno)
+
+
+    disciplinas = [
+                aluno.turmasdisciplinas.filter(turma__ano=1).count() + aluno.turmasdisciplinas_avulso.filter(turma__ano=1).count(),
+                aluno.turmasdisciplinas.filter(turma__ano=2).count() + aluno.turmasdisciplinas_avulso.filter(turma__ano=2).count(),
+                aluno.turmasdisciplinas.filter(turma__ano=3).count() + aluno.turmasdisciplinas_avulso.filter(turma__ano=3).count()
+            ]
+    max_disciplinas = max(disciplinas)
+    ano_que_deve_estar = disciplinas.index(max_disciplinas) + 1
+
+    if max_disciplinas >= 3 and aluno.ano != ano_que_deve_estar:
+        for turmaDisciplina in aluno.turmasdisciplinas.all():
+            turmaDisciplina.alunos.remove(aluno)
+        for turmaDisciplina in aluno.turmasdisciplinas_avulso.all():
+            turmaDisciplina.alunos_avulso.remove(aluno)
+
+        aluno.turma=None
+        aluno.ano=None
+        aluno.save()
+
+        return redirect('horarios:turmas_corrige', max_disciplinas=max_disciplinas, ano_que_deve_estar=ano_que_deve_estar)
+
+
+    return redirect('horarios:disciplinas')
+
+
+
+def lista_disciplinas_view(request):
+
+    disciplinas = Disciplina.objects.filter(semestre=semestre, curso__nome='LEI')
+
+    disciplinas1 = Disciplina.objects.filter(semestre=semestre, curso__sigla='LEI', ano=1)
+    disciplinas2 = Disciplina.objects.filter(semestre=semestre, curso__sigla='LEI', ano=2)
+    disciplinas3 = Disciplina.objects.filter(semestre=semestre, curso__sigla='LEI', ano=3)
+
+    context = {'disciplinas': [
+            [(d, sum([len(t.alunos.all())+len(t.alunos_avulso.all())  for t in TurmaDisciplina.objects.filter(disciplina=d)]))  for d in disciplinas1],
+            [(d, sum([len(t.alunos.all())+len(t.alunos_avulso.all())  for t in TurmaDisciplina.objects.filter(disciplina=d)]))  for d in disciplinas2],
+            [(d, sum([len(t.alunos.all())+len(t.alunos_avulso.all())  for t in TurmaDisciplina.objects.filter(disciplina=d)]))  for d in disciplinas3],
+        ]}
+
+    return render(request, 'horarios/lista_disciplinas.html', context)
+
+
+def lista_turmas_de_disciplina_view(request, disciplina_id):
+
+    disciplina = Disciplina.objects.get(id=disciplina_id)
+    turmasdisciplina = TurmaDisciplina.objects.filter(disciplina=disciplina)
+
+    turmasdisciplina = [(t, len(t.alunos.all()) + len(t.alunos_avulso.all()))for t in turmasdisciplina]
+
+    context = {
+
+        'disciplina': disciplina,
+        'turmasdisciplina': turmasdisciplina,
+    }
+    return render(request, 'horarios/lista_turmas_disciplina.html', context)
+
+
+
+def lista_alunos_turma_view(request, turmadisciplina_id):
+    turmadisciplina = TurmaDisciplina.objects.get(id=turmadisciplina_id)
+
+    context = {
+        'turmadisciplina': turmadisciplina,
+        'alunos': turmadisciplina.alunos.all().order_by('user__first_name', 'user__last_name'),
+        'alunos_avulso': turmadisciplina.alunos_avulso.all().order_by('user__first_name', 'user__last_name')
+    }
+    return render(request, 'horarios/lista_alunos_turmas_disciplina.html', context)
+
+
+
+def fazer_inscricao_mesmo_ano_view(request, disciplina_id):
+
+    aluno = Aluno.objects.get(user = request.user)
+    disciplina = Disciplina.objects.get(id=disciplina_id)
+    turma = Turma.objects.get(nome=aluno.turma)
+
+    turmadisciplina = TurmaDisciplina.objects.get(turma=turma, disciplina=disciplina)
+    turmadisciplina.alunos.add(aluno)
 
     return redirect('horarios:disciplinas')
 
@@ -206,34 +365,181 @@ def disciplina_do_ano_remover_view(request, disciplina_id):
 
     return render(request, 'horarios/disciplina_do_ano_remover.html', context)
 
-
 @login_required
-def wwwinscrever_disciplina_view(request, disciplina_id):
+def finalizar_view(request):
 
     aluno = Aluno.objects.get(user = request.user)
 
-    disciplina = TurmaDisciplina.objects.get(id=disciplina_id)
-    disciplina.alunos.add(aluno)
+    turmasdisciplinas = []
+    for tdisc in TurmaDisciplina.objects.filter(turma__curso=aluno.curso):
+        if aluno in tdisc.alunos.all() or aluno in tdisc.alunos_avulso.all():
+            turmasdisciplinas.append(tdisc)
+
+    context = {
+        'turmasdisciplinas': turmasdisciplinas,
+        'aluno':aluno,
+        'semestre':semestre,
+        'ano_lectivo':ano_lectivo,
+    }
+
+    return render(request, 'horarios/finalizar.html', context)
+
+
+#############################################################################################################################
+#############################################################################################################################
+#############################################################################################################################
+#############################################################################################################################
+
+
+@login_required
+def report_view(request):
+
+    info = {}
+    for curso in Curso.objects.all():
+        info[curso.sigla]={}
+        turmas = Turma.objects.filter(curso=curso, semestre=semestre).order_by('ano','nome')
+        for turma in turmas:
+            info[curso.sigla][turma.nome] = {}
+            alunos = set()
+
+            turmadisciplinas = TurmaDisciplina.objects.filter(turma=turma, disciplina__semestre=semestre)
+
+            for turmadisciplina in turmadisciplinas:
+                for aluno in turmadisciplina.alunos.all():
+                    if turmadisciplina.disciplina.nome not in lista_disciplinas_recuperacao:
+                        alunos.add(aluno)
+
+
+            info[curso.sigla][turma.nome]['alunos'] = sorted(list(alunos), key=lambda a:a.user.username)
+
+            info[curso.sigla][turma.nome]['alunos_out'] = {aluno:[] for aluno in list(alunos)}
+            for aluno in info[curso.sigla][turma.nome]['alunos']:
+                for turmadisciplina in turmadisciplinas:
+                    if turmadisciplina.disciplina.nome in lista_disciplinas_recuperacao:
+                        continue
+                    if aluno not in turmadisciplina.alunos.all() and aluno not in turmadisciplina.alunos_avulso.all():
+                        info[curso.sigla][turma.nome]['alunos_out'][aluno].append(turmadisciplina.disciplina)
+
+            info[curso.sigla][turma.nome]['alunos_avulso'] = {}
+            disciplinas = {}
+            for turmadisciplina in turmadisciplinas:
+                if turmadisciplina.disciplina.nome in lista_disciplinas_recuperacao:
+                    continue
+
+                alunos = []
+                for aluno in turmadisciplina.alunos_avulso.all():
+                    alunos.append(aluno)
+                disciplinas[turmadisciplina.disciplina] = sorted(alunos, key=lambda a:a.user.username)
+
+        # disciplinas de recuperação
+            disciplinas = {}
+            for disciplina in lista_disciplinas_recuperacao:
+                for turmadisciplina in TurmaDisciplina.objects.filter(disciplina__nome=disciplina):
+                    if disciplina in disciplinas:
+                        disciplinas[disciplina] += [aluno for aluno in turmadisciplina.alunos.all()] + [aluno for aluno in turmadisciplina.alunos_avulso.all()]
+                    else:
+                        disciplinas[disciplina] = [aluno for aluno in turmadisciplina.alunos.all()] + [aluno for aluno in turmadisciplina.alunos_avulso.all()]
+                disciplinas[disciplina].sort(key=lambda a:a.user.username)
+
+            info[curso.sigla]['D01EINF01']['alunos_avulso'] = disciplinas
 
 
     context = {
-        'disciplinas': Disciplina.objects.filter(semestre=1).order_by('ano', 'semestre', 'nome'),
-        'aluno': Aluno.objects.get(user = request.user),
+        'info': info,
+        'semestre':semestre,
     }
 
-    return render(request, 'horarios/disciplinas.html', context)
+    return render(request, 'horarios/report.html', context)
 
 
 
 @login_required
-def horario_view(request):
-    pass
+def report_alunos_view(request):
+
+    info = {}
+    for aluno in Aluno.objects.all():
+        info[aluno.nome_completo]=[]
+        for turmadisciplina in TurmaDisciplina.objects.all():
+            if aluno in turmadisciplina.alunos.all():
+                info[aluno.nome_completo].append(turmadisciplina.turma.nome)
+    context = {
+        'info': info,
+    }
+
+    return render(request, 'horarios/report_alunos.html', context)
+
+
+def email_view(request):
+
+    email = request.POST.get('email')
+
+    user = User.objects.filter(email=email).first()
+    token = token = default_token_generator.make_token(user)
+    uidb64 = urlsafe_base64_encode(user.pk.to_bytes(4, 'big'))
+    reset_link = request.build_absolute_uri(f'/reset/{uidb64}/{token}/')
+
+    turmasdisciplinas = ''
+    for tdisc in TurmaDisciplina.objects.filter(turma__curso=aluno.curso):
+        if aluno in tdisc.alunos.all() or aluno in tdisc.alunos_avulso.all():
+            turmasdisciplinas += f'\n {tdisc.disciplina}, {tdisc.turma}'
+
+    send_mail(
+        f'Inscrição no {semestre}º semestre de {aluno.curso}',
+        f'Olá,\nNo {semestre}º semestre de {ano_lectivo} inscreveu-se, em {aluno.curso}, às seguintes cadeiras e respetivas turmas:{turmasdisciplinas}',
+        'lucio.studer@gmail.com',
+        [email]
+    )
+
+    return redirect('horario:finalizar')
 
 
 
+def report_alunos_nao_escolheram_turma_view(request):
+    alunos_None = Aluno.objects.filter(turma=None)
+    alunos_0 = Aluno.objects.filter(turma__exact='')
+
+    context = {
+        'alunos': alunos_None | alunos_0,
+    }
+    return render(request, 'horarios/report_alunos_sem_turma.html', context)
+
+
+
+#############################################################################################################################
+#############################################################################################################################
+#############################################################################################################################
+#############################################################################################################################
 
 def login_view(request):
+    if request.method == 'POST':
+        credential = request.POST['credential']
+        password = request.POST['password']
 
+        # Test if it's an email
+        user = authenticate(request, email=credential, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('horarios:horarios')
+        else:
+            # Test if it's a username
+            user = authenticate(request, username=credential, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect('horarios:horarios')
+
+        return render(request, 'horarios/login.html', {
+            'message': 'Credenciais inválidas'
+        })
+
+    if request.user.is_authenticated:
+        return redirect('horarios:horarios')
+    else:
+        return render(request, 'horarios/login.html')
+
+
+def _login_view(request):
 
     if request.method == 'POST':
         credential = request.POST['credential'] # poderá ser email ou username
@@ -241,20 +547,17 @@ def login_view(request):
 
         # testa se é um email
         user = authenticate(request, email=credential, password=password)
-
         if user is not None:
             login(request, user)
-            return redirect('horarios:turmas')
+            return redirect('horarios:horarios')
 
-        else:
+        # testa se é um username
+        user = authenticate(request, username=credential, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('horarios:horarios')
 
-            # testa se é um username
-            user = authenticate(request, username=credential, password=password)
-
-            if user is not None:
-                login(request, user)
-                return redirect('horarios:horarios')
-
+        # invalido
         return render(request, 'horarios/login.html', {
             'message': 'Credenciais inválidas'
         })
@@ -306,7 +609,9 @@ def password_reset_confirm(request, uidb64, token):
         if default_token_generator.check_token(user, token):
             if request.method == 'POST':
                 form = SetPasswordForm(user, request.POST)
+
                 if form.is_valid():
+
                     form.save()
                     return render(request, 'horarios/login.html')
             else:
