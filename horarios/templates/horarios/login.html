@@ -14,7 +14,7 @@ form {
     flex-direction:column;
     align-items: center;
     justify-contents: center;
-    max-width: 20ch;
+    max-width: 300px;
 }
 
 input {
@@ -41,11 +41,7 @@ input[type='submit'] {
     border-radius: 20px;
 }
 
-main a {
-    color: gray;
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-}
+
 
 {% endblock style %}
 
@@ -57,29 +53,36 @@ main a {
 
 <h1>Login</h1>
 
+<p>Se nunca usou esta aplicação, clique em <a href="{% url 'horarios:forgot_password' %}" style="color:blue;">"Recuperar password"</a> para definir uma password.</p>
+
 {% if not request.user.is_authenticated %}
 <b>{{ message }}</b>
 {% endif %}
 
 <form action="{% url 'horarios:login' %}" method="POST">
     {% csrf_token %}
-    <input type="text" name="credential" placeholder="número de aluno ou email">
-    <input type="password" name="password" placeholder="palavra-passe">
+    <input type="text" name="username" placeholder="número de aluno">
+    <input type="password" name="password" placeholder="password definida por si para esta app!">
     <input type="submit" value="Entrar" class="botao-big" style="margin-top:0.2em;">
 
   {% comment %}
   <a class="registar" href="{% url 'horarios:registar_aluno' %}">Registar</a>
   {% endcomment %}
 
+  <a href="{% url 'horarios:forgot_password' %}"  class="botao-big" style="margin-top:30px; color:blue; background:white; border:2px solid blue;">Recuperar ou definir password</a>
+
 </form>
 
 
-<p style="text-align:center; margin-top:3em; font-style:italic; font-weight:300;">
-    Caso seja a primeira vez que acede a esta aplicação <br>
-    ou se tenha esquecido da palavra-passe,
-    <br>faça a <a href="{% url 'horarios:fogot_password' %}"  style="font-size:1em; font-weight:bold; color: var(--contraste);">recuperação da palavra-passe</a>.
-    Use o email onde recebe as mensagens do Moodle.
-    <br><br>Perante qualquer dificuldade <b><a href="mailto:lucio.studer@ulusofona.pt" style="font-size:1em; color: var(--contraste);">contacte-nos</a></b>.</p>
+
+
+
+{% load socialaccount %}
+
+<a href="{% provider_login_url 'google' %}"  class="botao-big" style="margin-top:50px;">
+    Entrar com Google (Email onde recebe mensagens do Moodle)
+</a>
+
 
 
 </body>

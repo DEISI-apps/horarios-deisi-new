@@ -21,7 +21,7 @@ import base64
 
 inscricoes_abertas = True
 semestre = 2
-ano_lectivo = '23-24'
+ano_lectivo = '25-26'
 lista_disciplinas_recuperacao = ['Matemática I (2º Sem)', 'Fund Programação (2º Sem)', 'Fundamentos de Física (2º Sem)']
 
 # Create your views here.
@@ -35,13 +35,20 @@ def horarios_view(request):
     horarios = Horario.objects.filter(curso__sigla='LEI', ano_lectivo=ano_lectivo, semestre=semestre)
     context = {
         'horarios':horarios,
+        'inscricoes_abertas': inscricoes_abertas,
+        'semestre':semestre,
+        'ano_lectivo':ano_lectivo,
     }
 
+    print("Estou em horarios_view. Autenticado?", request.user.is_authenticated)
+
     if not request.user.is_authenticated:
+        print("nao estou autenticado!")
         return render(request, 'horarios/horarios.html', context)
 
     try:
         aluno = Aluno.objects.get(user = request.user)
+        print("aluno: ", aluno)
     except:
         logout(request)
         return render(request, 'horarios/horarios.html', context)
@@ -53,16 +60,17 @@ def horarios_view(request):
             turmasdisciplinas.append(tdisc)
 
 
-    context = {
+    context |= {
         'turmasdisciplinas': turmasdisciplinas,
         'aluno':aluno,
-        'semestre':semestre,
-        'ano_lectivo':ano_lectivo,
-        'horarios':horarios,
-        'inscricoes_abertas': inscricoes_abertas,
     }
 
     return render(request, 'horarios/horarios.html', context)
+
+
+
+def lista_horarios_view(request):
+    return render(request, 'horarios/lista-horarios.html')
 
 
 
@@ -510,24 +518,71 @@ def report_alunos_nao_escolheram_turma_view(request):
 #############################################################################################################################
 #############################################################################################################################
 
+
 def login_view(request):
     if request.method == 'POST':
-        credential = request.POST['credential']
-        password = request.POST['password']
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
 
-        # Test if it's an email
-        user = authenticate(request, email=credential, password=password)
+        if not username or not password:
+            return render(
+                request,
+                'horarios/login.html',
+                {'message': 'Preencha todos os campos'}
+            )
+
+        user = authenticate(request, username=username.strip('a'), password=password)
+
+
+        print("user", user, "authenticade")
 
         if user is not None:
+            print("user is not None. User is:", user, "username", username, "password", password)
+            login(request, user)
+
+            if request.user.is_authenticated:
+                # O user está logado
+                print("User logado:", request.user)
+            else:
+                # O user NÃO está logado
+                print("User anónimo")
+
+            return redirect('horarios:horarios')
+
+        return render(
+            request,
+            'horarios/login.html',
+            {'message': 'Username ou palavra-passe incorretos'}
+        )
+
+    if request.user.is_authenticated:
+        return redirect('horarios:horarios')
+
+    return render(request, 'horarios/login.html')
+
+
+
+def __login_view(request):
+
+    print("LOGIN")
+    if request.method == 'POST':
+
+        username = request.POST['username'].strip()
+        password = request.POST['password'].strip()
+
+        print(username,password)
+
+        u = User.objects.get(username=username)
+        email = u.email
+        print("user:",  u, ", Email:", email)
+
+        user = authenticate(request, email=email, password=password)
+        print("user: ", user)
+
+        if user is not None:
+            print("user is not None", user)
             login(request, user)
             return redirect('horarios:horarios')
-        else:
-            # Test if it's a username
-            user = authenticate(request, username=credential, password=password)
-
-            if user is not None:
-                login(request, user)
-                return redirect('horarios:horarios')
 
         return render(request, 'horarios/login.html', {
             'message': 'Credenciais inválidas'
@@ -539,31 +594,6 @@ def login_view(request):
         return render(request, 'horarios/login.html')
 
 
-def _login_view(request):
-
-    if request.method == 'POST':
-        credential = request.POST['credential'] # poderá ser email ou username
-        password = request.POST['password']
-
-        # testa se é um email
-        user = authenticate(request, email=credential, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('horarios:horarios')
-
-        # testa se é um username
-        user = authenticate(request, username=credential, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('horarios:horarios')
-
-        # invalido
-        return render(request, 'horarios/login.html', {
-            'message': 'Credenciais inválidas'
-        })
-
-    return render(request, 'horarios/login.html')
-
 
 def logout_view(request):
     logout(request)
@@ -572,29 +602,39 @@ def logout_view(request):
 
 def forgot_password(request):
 
-  email = request.POST.get('email')
+  if request.method != 'POST':
+    return render(request, 'horarios/forgot.html')
 
-  if not email:
-    return render(request, 'horarios/forgot.html', {'error': 'Por favor, insira o seu email.'})
+  username = request.POST.get('username')
 
-  user = User.objects.filter(email=email).first()
+  if not username:
+    return render(
+        request,
+        'horarios/forgot.html',
+        {'error': 'Por favor, insira o seu número de aluno'}
+    )
+
+  user = User.objects.filter( username=username.strip().strip('a')).first()
 
   if not user:
-    return render(request, 'horarios/forgot.html', {'error': 'O email inserido não está registado.'})
+    return render(
+        request,
+        'horarios/forgot.html',
+        {'error': 'Não existe registo de aluno de LEI com esse número. contacte lucio.studer@ulusofona.pt'}
+    )
 
   token = token = default_token_generator.make_token(user)
   uidb64 = urlsafe_base64_encode(user.pk.to_bytes(4, 'big'))
 
   reset_link = request.build_absolute_uri(f'/reset/{uidb64}/{token}/')
 
-  send_mail(
-        'Definição de palavra chave',
+  send_mail('Horários LEI: Definição de palavra chave',
         f'Olá,\n\nPediu para redefinir a sua palavra chave, clique por favor no seguinte link:\n\n{reset_link}',
-        'lucio.studer@gmail.com',
-        [email]
+        'horarios.deisi@gmail.com',
+        [user.email]
   )
 
-  return render(request, 'horarios/forgot.html', {'success': 'Foi-lhe enviado um email com um link para redefinir a sua senha.'})
+  return render(request, 'horarios/forgot.html', {'success': f'Foi-lhe enviado um email para {user.email} com um link para redefinir a sua senha.'})
 
 
 

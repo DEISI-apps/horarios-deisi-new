@@ -78,8 +78,6 @@ div.menu a:nth-child(3) {
 
 <h1>Disciplinas</h1>
 
-
-
 {% for disciplinas,horario in disciplinas_por_ano %}
     <h2 style="margin:30px -2em 0;text-align:center;
                 {% if forloop.counter == aluno.ano %}
@@ -92,10 +90,6 @@ div.menu a:nth-child(3) {
             <div>Inscrito no</div>
             <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
                 <div style="padding-right:1em;">{{ forloop.counter}}º Ano, turma {{ turma }}</div>
-                <a href="{{ horario.horario.url }}" class="botao-cinza" style=" color:white; background:black; margin-top:0; font-weight:300 !important; border-radius:20px; display:inline; text-decoration:none; text-align:center;">
-                    <i class="fa fa-download"></i>
-                    Ver Horários
-                </a>
             </div>
             <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.3em;margin-bottom:0.2em;">
            A turma escolhida aplica-se a todas as disciplinas <br>(não pode misturar turmas do {{ forloop.counter}}º ano).
@@ -104,10 +98,6 @@ div.menu a:nth-child(3) {
        {% else %}
             <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
                 <div style="padding-right:0.5em"> {{ forloop.counter}}º Ano</div>
-                <a href="{{ horario.horario.url }}" class="botao-cinza" style=" color:white; background:black; margin-top:0; font-weight:300 !important; border-radius:20px; display:inline; text-decoration:none; text-align:center;">
-                    <i class="fa fa-download"></i>
-                    Ver Horários
-                </a>
             </div>
             <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.2em;margin-bottom:0.2em;">
                Para disciplinas de outros anos pode escolher <br>a turma com vagas que melhor se encaixe no seu horário.
@@ -151,7 +141,6 @@ div.menu a:nth-child(3) {
                                         <a href="{% url 'horarios:disciplina_avulso' disciplina.id 1 %}" style="padding: 6px 12px; text-align:center;">
                                             Alterar
                                         </a>
-
                                 </div>
 
                             {% endif %}
@@ -184,9 +173,7 @@ div.menu a:nth-child(3) {
 
 </ul>
 
-{% comment %}
-    <a  class="botao pointer" href="{% url 'horarios:finalizar' %}" style="color:white;background:blue;font-weight:bold; font-size:1.2em; width:100%; text-align:center;">Finalizar</a>
-{% endcomment %}
+    <a  class="botao pointer" href="{% url 'horarios:finalizar' %}" style="color:white;background:blue;font-weight:bold; font-size:1.2em; width:100%; text-align:center;">Terminar</a>
 
 {% endblock main %}
 

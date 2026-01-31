@@ -20,6 +20,7 @@ app_name = 'horarios'
 
 urlpatterns = [
     path('', views.horarios_view, name='horarios'),
+    path('lista-horarios/', views.lista_horarios_view, name='lista-horarios'),
     path('turmas/', views.turmas_view, name='turmas'),
     path('sem_turma/', views.sem_turma_view, name='sem_turma'),
     path('turmas_corrige/<str:max_disciplinas>/<str:ano_que_deve_estar>', views.turmas_corrige_view, name='turmas_corrige'),
@@ -39,7 +40,7 @@ urlpatterns = [
 
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('forgot_password/', views.forgot_password, name='fogot_password'),
+    path('forgot_password/', views.forgot_password, name='forgot_password'),
     path('reset/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
     path('registar_aluno/', views.registar_aluno, name='registar_aluno'),
 ]

@@ -1,0 +1,59 @@
+{% extends "horarios/base.html" %}
+
+{% block style %}
+
+:root {
+    --contraste: #bf1d19;
+}
+
+main {
+    max-width: inherit;
+}
+
+main a {
+    color: gray;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+h1, h3 {text-align:center}
+
+p, li {
+    font-weight:300;
+    line-height: 1.4em;
+    text-align:justify;
+}
+
+div.menu a:nth-child(1) {
+    padding: 6px 15px;
+    color: black;
+    background: white;
+    border: 0;
+}
+
+{% endblock style %}
+
+
+
+{% block main %}
+<iframe
+    id="autoHeightIframe"
+    src="https://horarios-phi.vercel.app/turmas-lei"
+    style="
+        width:100%;
+        border:none;
+    "
+>
+</iframe>
+
+<script>
+    window.addEventListener("message", (event) => {
+      if (event.data?.type === "iframe-turmas-height") {
+        const iframe = document.getElementById("autoHeightIframe");
+
+        const altura = event.data.height
+        iframe.style.height = altura + "px";
+      }
+    });
+</script>
+{% endblock main %}

@@ -68,19 +68,24 @@
         text-align:center;
     }
 
+    main {
+        max-width: 100%;
+    }
+
+
 {% endblock style %}
 
 
 
 {% block main %}
 
-    <h2>Inscrição disciplinas de outros anos</h2>
+    <h1>{{ disciplina }}</h1>
 
-    <h3>Turmas de {{ disciplina }}</h3>
-    <a href="{{ horario.horario.url }}" class="botao-cinza" style=" margin-top:-0.5em; margin-bottom:1.5em; font-weight:300 !important; border-radius:20px; display:inline; text-decoration:none; text-align:center;">
-        <i class="fa fa-download"></i>
-        Ver horários das turmas
-    </a>
+    <p>Inscreva-se numa turma disponível e compatível com o seu horário (não deve ter sobreposições de aulas! Caso tenha, deve contactar a direção).</p>
+
+
+    <h2>Escolha uma Turma</h2>
+
 
     <form action="{% url 'horarios:disciplina_avulso' disciplina.id 1 %}" method="POST">
 
@@ -136,12 +141,52 @@
             &#x2717; Remover a inscrição
         </a>
         {% endif %}
-        <br><br>
-        <a href="{% url 'horarios:disciplinas' %}" class="botao-big" style="background:whitesmoke; color: grey;" style="width:100%;">
+
+        <a href="{% url 'horarios:disciplinas' %}" class="botao-big" style="background:whitesmoke; color: grey; width:100%;">
             < Voltar à lista de disciplinas
         </a>
     </form>
+        <br><br>
 
+
+        <h2>Visualize os horários existentes de {{ disciplina }}</h2>
+        <iframe
+            id="disciplinas"
+            src="https://horarios-phi.vercel.app/disciplinas-lei"
+            style="
+                width:100%;
+                border:none;
+            "
+        >
+        </iframe>
+
+        <h2>Visualize o horário da sua turma ({{ aluno.ano }}º ano, turma {{ aluno.turma }})</h2>
+        <iframe
+            id="turmas"
+            src="https://horarios-phi.vercel.app/turmas-lei"
+            style="
+                width:100%;
+                border:none;
+            "
+        >
+        </iframe>
+
+        <script>
+            window.addEventListener("message", (event) => {
+              if (event.data?.type === "iframe-turmas-height") {
+                const iframe = document.getElementById("turmas");
+
+                const altura = event.data.height
+                iframe.style.height = altura + "px";
+              }
+              if (event.data?.type === "iframe-disciplinas-height") {
+                const iframe = document.getElementById("disciplinas");
+
+                const altura = event.data.height
+                iframe.style.height = altura + "px";
+              }
+            });
+        </script>
 
 
 

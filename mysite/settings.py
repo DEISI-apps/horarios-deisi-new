@@ -169,8 +169,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'cvp.django.app@gmail.com'
-EMAIL_HOST_PASSWORD = 'pxrqqpeiaobekqkq'  # usar uma google app password
+EMAIL_HOST_USER = 'deisi.horarios@gmail.com'
+EMAIL_HOST_PASSWORD = 'rybu dwjs icuf xxnv'  # usar uma google app password
 
 LOGIN_URL = 'horarios:login'
 
@@ -178,6 +178,20 @@ LOGIN_URL = 'horarios:login'
 #####
 
 SITE_ID = 1  # Required for django-allauth
+
+# allauth core
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+# social login
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
