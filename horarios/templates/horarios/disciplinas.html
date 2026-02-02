@@ -76,9 +76,13 @@ div.menu a:nth-child(3) {
 {% block main %}
 
 
-<h1>Disciplinas</h1>
+<h1>2. Disciplinas de outros Anos</h1>
 
-{% for disciplinas,horario in disciplinas_por_ano %}
+<p style="teɛt/align> center;">
+ Caso tenha disciplinas em atraso, escolha a turma com vagas que melhor se encaixe no seu horário.
+</p>
+
+{% for disciplinas in disciplinas_por_ano %}
     <h2 style="margin:30px -2em 0;text-align:center;
                 {% if forloop.counter == aluno.ano %}
                     color:var(--contraste);
@@ -86,22 +90,35 @@ div.menu a:nth-child(3) {
                     border-radius:5px;
                 {% endif %};
                 ">
-        {% if forloop.counter == aluno.ano %}
+        {% if forloop.counter0 == aluno.ano %}
             <div>Inscrito no</div>
             <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
-                <div style="padding-right:1em;">{{ forloop.counter}}º Ano, turma {{ turma }}</div>
+                <div style="padding-right:1em;">{{ forloop.counter0 }}º Ano, turma {{ turma }}</div>
             </div>
             <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.3em;margin-bottom:0.2em;">
            A turma escolhida aplica-se a todas as disciplinas <br>(não pode misturar turmas do {{ forloop.counter}}º ano).
         </p>
 
        {% else %}
-            <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
-                <div style="padding-right:0.5em"> {{ forloop.counter}}º Ano</div>
-            </div>
-            <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.2em;margin-bottom:0.2em;">
-               Para disciplinas de outros anos pode escolher <br>a turma com vagas que melhor se encaixe no seu horário.
-            </p>
+            {% if forloop.counter0 == 0 %}
+
+                <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
+                    <div style="padding-right:0.5em"> Turmas extra!</div>
+                </div>
+                <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.2em;margin-bottom:0.2em;">
+                   Disciplinas com turma extra.
+                </p>
+
+            {% else %}
+
+                <div style="display:flex; flex-direction:row; justify-content:center; align-items:center;">
+                    <div style="padding-right:0.5em"> {{ forloop.counter0}}º Ano</div>
+                </div>
+                <p style="font-weight:300; font-size:0.6em !important; color:grey; margin-top:0.2em;margin-bottom:0.2em;">
+                   Para disciplinas de outros anos pode escolher <br>a turma com vagas que melhor se encaixe no seu horário.
+                </p>
+
+            {% endif %}
         {% endif %}
     </h2>
 
@@ -173,7 +190,7 @@ div.menu a:nth-child(3) {
 
 </ul>
 
-    <a  class="botao pointer" href="{% url 'horarios:finalizar' %}" style="color:white;background:blue;font-weight:bold; font-size:1.2em; width:100%; text-align:center;">Terminar</a>
+    <a  class="botao pointer" href="{% url 'horarios:finalizar' %}" style="color:white;background:blue;font-weight:bold; font-size:1.2em; width:100%; text-align:center;">Ver Resumo</a>
 
 {% endblock main %}
 

@@ -23,14 +23,14 @@ input {
     display: block;
     padding:7px 20px;
     margin: 5px 0;
-    border: 2px solid #bf1d19;
+    border: 2px solid blue;
     width: 100%;
-    border-radius: 20px;
+    border-radius: 10px;
 }
 input[type='submit'] {
     color: white;
-    background: #bf1d19;
-    width: 113%;
+    background: blue;
+    width: 100%;
 }
 
 {% endblock %}
@@ -41,24 +41,21 @@ input[type='submit'] {
  <h1>Recuperação de Password</h1>
 
     {% if success %}
-        {{ success }}
+        {{ success|safe }}
     {% else %}
-    {% if error %}
-        {{ error }}
-    {% endif %}
-
+        {% if error %}
+            {{ error }}
+        {% endif %}
 
         <form action="" method="post">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Insira o seu número de aluno"/>
-        <input type="submit" value="Reset Password" />
-    </form>
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="número de aluno"/>
+            <input type="submit" value="Definir Password" />
+        </form>
 
-    <p style="text-align:center;font-weight:bold">
-        Irá receber um email para definir nova palavra chave
-        </p>
-    <p style="text-align:center; color: grey; margin-top:3em;">Perante qualquer dificuldade ou para sugestões, <br>contacte <a href="mailto:lucio.studer@ulusofona.pt" style="font-size:1em; color: var(--contraste);">lucio.studer@ulusofona.pt</p>
-
+        <p>
+            Irá receber um email para definir nova password.
+        Perante qualquer dificuldade <a href="mailto:lucio.studer@ulusofona.pt" style="font-size:1em; color: var(--contraste);">contacte-nos</a>.</p>
 
     {% endif %}
 

@@ -33,24 +33,16 @@ div.menu a:nth-child(1) {
 
 {% block main %}
 
-<h1>Escolha de turma de LEI</h1>
+<h1>Escolha de Horário para LEI</h1>
+
 
 
 <div style="max-width: 700px; margin: auto;">
 
 
-<p>Importante:</p>
-<ul>
-    <li><b style="font-weight:bold;">Esta aplicação serve para selecionar o seu horário/turma das disciplinas em que está inscrito no NetPA</b>.</li>
-    <li>Deve estar inscrito no NetPA para selecionar o horário de cada disciplina.</li>
-    <li><b style="font-weight:bold;">Estes horário irá substituir o horário que vê no NetPA, quando encerrar o período de inscrição</b>. Se não selecionar, será atribuido um horário aleatório, ceretamente diferente do que tem no NetPA. </li>
-    <li>O horário que vê atualmente no NetPA e aplicações é inválido, será substituido por este quando informarmos.</li>
-</ul>
-
-
 {% if request.user.is_authenticated %}
 
-    <p>{{ request.user.first_name|title }} {{ request.user.last_name|title }}, no {{semestre}}º semestre de {{ano_lectivo}} <span  style="font-weight:bold;"> escolheu turma para as seguintes disciplinas</span>:</p>
+    <p><b style="font-weight:bold;">{{ request.user.first_name|title }} {{ request.user.last_name|title }}</b>, no {{semestre}}º semestre de {{ano_lectivo}} <span  style="font-weight:bold;"> escolheu turma/horário para as seguintes disciplinas</span>:</p>
     <ul>
         {% for turmadisciplina in turmasdisciplinas %}
         <li>
@@ -75,20 +67,22 @@ div.menu a:nth-child(1) {
 
 {% endcomment %}
 
-
     {% if not aluno.turma %}
     <p><b>Escolha primeiro uma turma do ano em que tem mais disciplinas e depois adicione/remova disciplinas. </b></p>
     {% endif %}
 
+
 {% else %}
 
 
-    <p>Escolha com esta aplicação a sua turma, para ficar com o seu colega de grupo, amigos ou porque o horário lhe convém mais:</p>
+
+    <p><strong style="font-weight:bold;">Escolha até 5 de fevereiro a sua turma/horário</strong> para ficar com o seu colega de grupo, amigos ou porque o horário lhe convém mais:</p>
     <ol>
 
         <li><strong style="font-weight:bold;">Faça login</strong>.</li>
         <li><strong style="font-weight:bold;">Escolha uma turma do ano que frequenta</strong>, que integra o horario de todas as disciplinas.</li>
-        <li><strong style="font-weight:bold;">Disciplinas em atraso, escolha uma turma</strong> que melhor se encaixe no seu horário.</li>
+        <li><strong style="font-weight:bold;">Para disciplinas em atraso, escolha uma turma</strong> que melhor se encaixe no seu horário.</li>
+        <li>Pode adicionar/remover disciplinas, de acordo com o que se inscreveu no NetPA.</li>
     {% comment %}
         <li>Finalizar, receber um email com informação das inscrições que realizou</li>
     {% endcomment %}
@@ -96,11 +90,41 @@ div.menu a:nth-child(1) {
         <li><strong style="font-weight:bold;">Pode alterar as suas escolhas</strong> enquanto o período de inscrições estiver aberto. Estas preferências serão registadas nas plataformas da Lusófona.</li>
     </ol>
 
+
 {% endif %}
+
+
+
+    {% if request.user.is_authenticated %}
+        {% if inscricoes_abertas %}
+
+        <div style="display:flex; gap:1em;">
+            <a href="{% url 'horarios:turmas' %}" class="botao-big">
+                1. Escolher Turma
+            </a>
+            <a href="{% url 'horarios:disciplinas' %}" class="botao-big">
+                2. Escolher outras Disciplinas
+            </a>
+        </div>
+
+        {% endif %}
+    {% else %}
+        <h3 style="margin-top:2em;">
+
+            {% load socialaccount %}
+
+<!--href="{% provider_login_url 'google' %}"-->
+
+            <a href="{% url 'horarios:login' %}" class="botao-big" style="padding: 20px 30px; display: inline-block; margin-top: 0; border-radius:10px;">Faça Login e Escolha o seu horário</a>
+        </h3>
+    {% endif %}
+
+
+
 </div>
 
-<h2 style="text-align:center; margin-top:2ch;">
-        Consulte os horários aqui
+<h2 style="text-align:center; margin-top:4ch;">
+        Horários de LEI
 </h2>
 
 <iframe
@@ -124,44 +148,38 @@ div.menu a:nth-child(1) {
     });
 </script>
 
-<div style="max-width: 700px; margin: auto;">
 
 
-{% if inscricoes_abertas %}
-    <p>Pode alterar as suas escolhas enquanto o período de inscrições estiver aberto. Estas preferências serão registadas nas plataformas da Lusófona.</p>
+    <div style="max-width: 700px; margin: auto;">
 
-{% else %}
-    <p>O período de inscrições terminou. Contacte a <a href="mailto:lurdes.oliveira@ulusofona.pt" style="color:var(--contraste); font-weight:bold; font-size:inherit">D. Lurdes Oliveira</a>, caso pretenda mudar de turma.</p>
+
+<h2 style="text-align:center; margin-top:2ch;">
+    Funcionamento da Aplicação
+</h2>
+
+{% if request.user.is_authenticated %}
+
+    <p><strong style="font-weight:bold;">Escolha até 5 de fevereiro a sua turma/horário</strong> para ficar com o seu colega de grupo, amigos ou porque o horário lhe convém mais:</p>
+    <ol>
+
+        <li><strong style="font-weight:bold;">Faça login</strong>.</li>
+        <li><strong style="font-weight:bold;">Escolha uma turma do ano que frequenta</strong>, que integra o horario de todas as disciplinas.</li>
+        <li><strong style="font-weight:bold;">Disciplinas em atraso, escolha uma turma</strong> que melhor se encaixe no seu horário.</li>
+    {% comment %}
+        <li>Finalizar, receber um email com informação das inscrições que realizou</li>
+    {% endcomment %}
+        <li><strong style="font-weight:bold;">Pode alterar as suas escolhas</strong> enquanto o período de inscrições estiver aberto. Estas preferências serão registadas nas plataformas da Lusófona.</li>
+    </ol>
+
 {% endif %}
 
-
-<p>Esta aplicação ainda está em desenvolvimento. Caso tenha alguma dificuldade <a href="mailto:lucio.studer@ulusofona.pt" style="color:var(--contraste); font-size:inherit">contacte-nos</a>.</p>
-
-
- {% if request.user.is_authenticated %}
-        {% if inscricoes_abertas %}
-
-        <div style="display:flex; gap:1em;">
-            <a href="{% url 'horarios:turmas' %}" class="botao-big">
-                1. Turma
-            </a>
-            <a href="{% url 'horarios:disciplinas' %}" class="botao-big">
-                2. Disciplinas
-            </a>
-        </div>
-
-        {% endif %}
-    {% else %}
-        <p style="margin-top:2em;">
-
-            {% load socialaccount %}
-
-<!--href="{% provider_login_url 'google' %}"-->
-
-            <a href="{% url 'horarios:login' %}" class="botao-big">Login</a>
-        </p>
-    {% endif %}
-
+<p>Aspectos importantes:</p>
+<ul>
+    <li><b style="font-weight:bold; color:red;">Esta aplicação serve para escolher a turma/horário das disciplinas em que está inscrito no NetPA</b>.</li>
+    <li>O horário que vê atualmente no NetPA e aplicações é inválido, será substituido por este quando informarmos.</li>
+    <li><b style="font-weight:bold; color:red;">Estes horário irá substituir o horário que vê no NetPA</b>. Se não o fizer, ser-lhe-á atribuido um horário, muito provavelmente diferente do que tem no NetPA. </li>
+    <li>Esta aplicação ainda está em desenvolvimento. Caso tenha alguma dificuldade ou sugestão <a href="mailto:lucio.studer@ulusofona.pt" style="color:var(--contraste); font-size:inherit">contacte-nos</a>.</li>
+</ul>
 
 </div>
 

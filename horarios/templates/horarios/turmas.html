@@ -72,10 +72,11 @@ div.menu a:nth-child(2) {
 .livre{
     transition: filter 0.3s ease, background 0.3s ease;
     color: black;
+    filter: brightness(1.1);
 }
 
 .livre:hover {
-    filter: brightness(1.1);
+    filter: brightness(1);
 }
 
 .ocupada {
@@ -95,12 +96,14 @@ p {
 
 {% block main %}
 
-    <h1 style="text-align:left;">Escolha a sua Turma</h1>
+    <h1 style="text-align:left;">1. Escolher Turma</h1>
 
-
+<p style="text-align:center;">
+    Escolha uma turma do ano onde tem a maioria das suas disciplinas.
+</p>
 
 <h2 style="text-align:center;  margin:30px 0 10px;">
-    1. Consulte os horários das turmas existentes
+    Consulte os horários das turmas existentes
 </h2>
 
 
@@ -126,7 +129,7 @@ p {
 </script>
 
 <h2 style="text-align:center;  margin:30px 0 10px;">
-    2. Indique a turma em que se quer inscrever
+    Escolha a sua turma
 </h2>
 
 
@@ -146,58 +149,53 @@ p {
 
 <div style="width:400px;">
         {% for turmas,horario in turmas_por_ano %}
-            {% if turmas|length > 0 %}
+            {% if turmas|length > 0 and forloop.counter != 0 %}
 
-            {% load static %}
+                {% load static %}
 
-            <h2 style="display:flex; flex-direction:row; justify-content:center; align-items:center; gap:0.3em; margin-bottom:-0.5em;">
-                <span> {{ forloop.counter }}º ano</span>
-            </h2>
+                <h2 style="display:flex; flex-direction:row; justify-content:center; align-items:center; gap:0.3em; margin-bottom:-0.5em;">
+                    <span> {{ forloop.counter }}º ano</span>
+                </h2>
 
-            <p style="margin-bottom:-1em">A turma escolhida aplica-se a todas as disciplinas.</p>
-            {% if forloop.counter == 1 %}
-                <p style="margin-bottom:-1em; margin-top:1em;">
-                    No 1º ano, turmas 1 a 3 &rarr; teórica 1. Turmas 4 a 6 &rarr; teórica 2.
-                    </p>
-            {% endif %}
+                <p style="margin-bottom:-1em">A turma escolhida aplica-se a todas as disciplinas deste ano.</p>
 
-            {% for turma, aluno_inscrito in turmas %}
-                {% if turma.inscritos < turma.lotacao %}
-                    <form action="{% url 'horarios:turmas' %}" method="POST">
-                        {% csrf_token %}
+                {% for turma, aluno_inscrito in turmas %}
+                    {% if turma.inscritos < turma.lotacao %}
+                        <form action="{% url 'horarios:turmas' %}" method="POST">
+                            {% csrf_token %}
 
-                            <input type="hidden" name="turma" value="{{ turma.id }}">
+                                <input type="hidden" name="turma" value="{{ turma.id }}">
 
-                            <button
-                                class="botao-big livre"
-                                type="submit"
-                                {% if aluno_inscrito %}style="width:100%; color:white; font-weight:bold;"
-                                {% else %}style="width:100%; background:lightgrey; font-weight:bold;"
-                                {% endif %}
-                            >
-                                {% if aluno_inscrito %}
-                                    Inscrito na
-                                {% endif %}
+                                <button
+                                    class="botao-big livre"
+                                    type="submit"
+                                    {% if aluno_inscrito %}style="width:100%; color:white; font-weight:bold;"
+                                    {% else %}style="width:100%; background:lightgrey; font-weight:bold;"
+                                    {% endif %}
+                                >
+                                    {% if aluno_inscrito %}
+                                        Inscrito na
+                                    {% endif %}
 
-                                {{ turma }}
-                                <span style="font-weight:300; font-size:0.7em; font-style:italic;">
-                                    ({{ turma.inscritos }} inscritos / {{ turma.lotacao }} vagas)
-                                </span>
-                            </button>
-                    </form>
-                {% else %}
+                                    {{ turma }}
+                                    <span style="font-weight:300; font-size:0.7em; font-style:italic;">
+                                        ({{ turma.inscritos }} inscritos / {{ turma.lotacao }} vagas)
+                                    </span>
+                                </button>
+                        </form>
+                    {% else %}
 
-                    <button type="submit" class="botao-big ocupada" style="width:100%; background:lightgrey; font-weight:bold; color:grey;">
-                        {{ turma }}
-                        <span style="font-weight:300; font-size:0.7em; font-style:italic;">
-                            (turma completa)
-                        </span>
-                    </button>
+                        <button type="submit" class="botao-big ocupada" style="width:100%; background:lightgrey; font-weight:bold; color:grey;">
+                            {{ turma }}
+                            <span style="font-weight:300; font-size:0.7em; font-style:italic;">
+                                (turma completa)
+                            </span>
+                        </button>
 
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
 
-            <br><br>
+                <br><br>
             {% endif %}
         {% endfor %}
 </div>

@@ -126,7 +126,7 @@
 
         nav {display: none;}
 
-        @media  screen and (max-width:750px) {
+        @media  screen and (min-width:1px) {    /* (max-width:950px) */
             div.menu { display:none; }
             nav {display: block;}
          }
@@ -170,9 +170,9 @@
             <div style="padding:4px;">{{ request.user.first_name|title }} {{ request.user.last_name|title }}</div>
 
             <div class="menu" style="margin-right: 10px;">
-                <a href="{% url 'horarios:horarios' %}">A sua Turma</a>
-				<a href="{% url 'horarios:turmas' %}">Turmas</a>
-				<a href="{% url 'horarios:disciplinas' %}">Disciplinas</a>
+                <a href="{% url 'horarios:horarios' %}">Início</a>
+				<a href="{% url 'horarios:turmas' %}">1º Escolher a Turma do seu ano</a>
+				<a href="{% url 'horarios:disciplinas' %}">2º Escolher Disciplinas de outros anos</a>
             	<a href="{% url 'horarios:logout' %}">
 					<i class="fa fa-sign-out"></i> Logout
 				</a>
@@ -197,10 +197,10 @@
 						<i class="fa fa-bars"></i>
 					</button>
 					<div class="dropdown-content">
-						<a href="{% url 'horarios:horarios' %}">A sua Turma</a>
-						<a href="{% url 'horarios:turmas' %}">Turmas</a>
-						<a href="{% url 'horarios:disciplinas' %}">Disciplinas</a>
-						<a href="{% url 'horarios:logout' %}">
+						<a href="{% url 'horarios:horarios' %}">Início</a>
+						<a href="{% url 'horarios:turmas' %}">1º Escolher Turma</a>
+        				<a href="{% url 'horarios:disciplinas' %}">2º Disciplinas de outros anos</a>
+                    	<a href="{% url 'horarios:logout' %}">
 						    Log out
 							<i class="fa fa-sign-out"></i>
 						</a>

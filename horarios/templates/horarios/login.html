@@ -23,7 +23,7 @@ input {
     margin: 5px;
     border: 2px solid var(--contraste);
     width: 100%;
-    border-radius: 20px;
+    border-radius: 10px;
 }
 input[type='submit'] {
     color: white;
@@ -38,7 +38,7 @@ input[type='submit'] {
     text-align: center;
     text-decoration: none;
     width: 100%;
-    border-radius: 20px;
+    border-radius: 10px;
 }
 
 
@@ -53,7 +53,7 @@ input[type='submit'] {
 
 <h1>Login</h1>
 
-<p>Se nunca usou esta aplicação, clique em <a href="{% url 'horarios:forgot_password' %}" style="color:blue;">"Recuperar password"</a> para definir uma password.</p>
+<p>Se nunca usou esta aplicação, <a href="{% url 'horarios:forgot_password' %}" style="color:blue;">defina a sua password</a>.</p>
 
 {% if not request.user.is_authenticated %}
 <b>{{ message }}</b>
@@ -62,20 +62,20 @@ input[type='submit'] {
 <form action="{% url 'horarios:login' %}" method="POST">
     {% csrf_token %}
     <input type="text" name="username" placeholder="número de aluno">
-    <input type="password" name="password" placeholder="password definida por si para esta app!">
-    <input type="submit" value="Entrar" class="botao-big" style="margin-top:0.2em;">
+    <input type="password" name="password" placeholder="password definida para esta aplicação">
+    <input type="submit" value="Entrar" class="botao-big" style="margin-top:0.2em; border-radius: 10px;">
 
   {% comment %}
   <a class="registar" href="{% url 'horarios:registar_aluno' %}">Registar</a>
   {% endcomment %}
 
-  <a href="{% url 'horarios:forgot_password' %}"  class="botao-big" style="margin-top:30px; color:blue; background:white; border:2px solid blue;">Recuperar ou definir password</a>
+  <a href="{% url 'horarios:forgot_password' %}"  class="botao-big" style="margin-top:30px; color:blue; background:white; border:2px solid blue; border-radius:10px;">Recuperar ou definir password</a>
 
 </form>
 
 
 
-
+<!--
 
 {% load socialaccount %}
 
@@ -83,7 +83,7 @@ input[type='submit'] {
     Entrar com Google (Email onde recebe mensagens do Moodle)
 </a>
 
-
+-->
 
 </body>
 
