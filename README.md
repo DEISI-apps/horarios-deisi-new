@@ -1,6 +1,6 @@
 # Aplicacao Escolhe o teu Horario LEI
 
-https://www.youtube.com/watch?v=Rhm1d6XFV3k
+[Demo da aplicacao](https://www.youtube.com/watch?v=Rhm1d6XFV3k)
 
 # Atualizar semestre
 
@@ -66,5 +66,6 @@ lista_disciplinas_recuperacao = ['Matemática I (2º Sem)', 'Fund Programação 
 3. executar comando: `python manage.py carrega_alunos <course sigla> <txt file with alunos>`
     * this command loads into the database all students of course contained in a file in the commands\data folder
     * exemplo: `python manage.py carrega_alunos LEI alunos.json`
+
 
 
