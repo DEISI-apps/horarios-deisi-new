@@ -204,20 +204,20 @@
 						    Log out
 							<i class="fa fa-sign-out"></i>
 						</a>
-					    <p style="color:gray; margin-top: 4px; font-size:0.9rem;">⏳  Pedimos que aguarde..  A aplicação precisa de um tempo para processar…</p>
 
-						{% if request.user.username.0 == "p" or request.user.username.0 == "f" %}
-    						<a></a>
+						{% load group_filters %}
+
+						{% if request.user.username.0 == "p" or request.user.username.0 == "f" or request.user|has_group:"sata" %}
     						<span  style="color:var(--contraste); font-weight:bold;">Para docentes</span>
-    						<a href="{% url 'horarios:lista_disciplinas' %}" style="color:var(--contraste);">Listagens de Alunos</a>
+    						<a href="{% url 'horarios:lista_disciplinas' %}" style="color:var(--contraste);">Turmas e seus alunos </a>
 						{% endif %}
 
-						{% if request.user.username == "admin" or request.user.username == "p6069" or request.user.username == "p718" or request.user.username == "f3560" %}
-    						<a></a>
+
+                        {% if request.user|has_group:"sata" %}
     						<span  style="color:var(--contraste); font-weight:bold;">Para administradores</span>
-    						<a href="{% url 'horarios:report-turmas' %}"  style="color:var(--contraste);">Report Turmas <span style="font-size:0.5em">(demora a processar!)</span></a>
-    						<a href="{% url 'horarios:report-alunos' %}"  style="color:var(--contraste);">Report Alunos <span style="font-size:0.5em">(demora a processar!)</span></a>
-    						<a href="{% url 'horarios:report-alunos-sem-turma' %}"  style="color:var(--contraste);">Report Alunos sem turma</a>
+    						<a href="{% url 'horarios:report-turmas' %}"  style="color:var(--contraste);">Turmas e seus alunos</a>
+    						<a href="{% url 'horarios:report-alunos' %}"  style="color:var(--contraste);">Alunos e suas turmas</a>
+    						<a href="{% url 'horarios:report-alunos-sem-turma' %}"  style="color:var(--contraste);">Alunos sem turma</a>
 
     						<a href="/admin/"  style="color:var(--contraste);">Admin Base Dados</a>
 						{% endif %}

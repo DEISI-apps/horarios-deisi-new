@@ -7,6 +7,7 @@ main {
     flex-direction:column;
     align-items: center;
     justify-contents: flex-start;
+    max-width: 800px;
 }
 
 div.disciplina  {
@@ -75,14 +76,17 @@ div.menu a:nth-child(3) {
 
 <h1>Report Alunos e suas disciplinas e turmas</h1>
 
-    <ul>
+<p style="font-weight:bold;">Já se inscreveram {{ n_alunos_inscritos }} de {{ info|length }} alunos (faltam {{ n_alunos_faltam }})</p>
+
+    <ol>
         {% for aluno,disciplinas in info.items %}
-        <li>{{aluno}}:
-        <ul>
-            {% for disciplina in disciplinas %} <li>{{disciplina}} - {{disciplina.nome}}</li> {% endfor %}
-        </ul>
+        <li style="margin-top: 20px;">
+            <strong style="font-weight:bold; color:blue;">{{aluno.0}},  {{aluno.1}}</strong>
+            <ul>
+                {% for disciplina, turma in disciplinas %} <li>{{disciplina.ano}} - {{turma}}: {{disciplina}}</li> {% endfor %}
+            </ul>
         </li>
         {% endfor %}
-    </ul>
+    </ol>
 
 {% endblock main %}

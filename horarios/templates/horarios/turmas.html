@@ -132,10 +132,14 @@ p {
     Escolha a sua turma
 </h2>
 
+<div style="width:400px;">
 
         {% if turma_corrige %}
             <p style="font-weight:bold; color:var(--contraste)">
-                Tem {{ max_disciplinas }} disciplinas do {{ ano_que_deve_estar }}º ano, pelo que deve inscrever-se numa turma desse ano (em vez de disciplinas). Foram removidas todas as inscrições (turma e disciplinas). Recomece o processo escolhendo uma turma adequada.</p>
+                Tem {{ max_disciplinas }} disciplinas do {{ ano_que_deve_estar }}º ano,
+                pelo que deve inscrever-se numa turma desse ano (em vez de disciplinas).
+                Foram removidas todas as inscrições (turma e disciplinas). Recomece
+                o processo escolhendo uma turma adequada.</p>
         {% endif %}
 
         {% if sem_turma %}
@@ -147,7 +151,7 @@ p {
         sem turmas
         {% endif %}
 
-<div style="width:400px;">
+
         {% for turmas,horario in turmas_por_ano %}
             {% if turmas|length > 0 and forloop.counter != 0 %}
 
@@ -158,6 +162,14 @@ p {
                 </h2>
 
                 <p style="margin-bottom:-1em">A turma escolhida aplica-se a todas as disciplinas deste ano.</p>
+
+                {% if forloop.counter == 2 %}
+                    <p style="font-weight:bold; color:blue; margin-top:1em; margin-bottom:-1em;">
+                        A inscricao na turma de 2º ano D01EINF04 esta reservada aos alunos que
+                        combinaram com o Prof. Pedro Alves fazer a disciplina de Manutençao de Software
+                        (que no entanto ainda tem o nome de Engenharia de Requisitos e Testes).
+                    </p>
+                {% endif %}
 
                 {% for turma, aluno_inscrito in turmas %}
                     {% if turma.inscritos < turma.lotacao %}
@@ -198,11 +210,11 @@ p {
                 <br><br>
             {% endif %}
         {% endfor %}
-</div>
+
 
     <h2 style="margin-top:2em; width:100%;">
         <a href="{% url 'horarios:disciplinas' %}" class="botao-big">2. Disciplinas</a>
     </h2>
-
+</div>
 
 {% endblock main %}

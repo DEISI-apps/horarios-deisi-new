@@ -75,10 +75,18 @@ div.menu a:nth-child(3) {
 
 <h1 style="text-align:center;">Alunos do Moodle de LEI que não escolheram Turma</h1>
 
-    <ul>
+<p>Total de alunos que ainda não escolheram: {{ alunos|length }}</p>
+
+    <ol>
         {% for aluno in alunos %}
-        <li>{{aluno.user.username|slice:"1:"}} {{aluno}}</li>
+        <li>{{aluno.user.username}} {{aluno}}</li>
         {% endfor %}
-    </ul>
+    </ol>
+
+<h1 style="text-align:center;">Emails Alunos do Moodle de LEI que não escolheram Turma</h1>
+
+    <p>{% for aluno in alunos %}{{aluno.user.email}} {% endfor %}</p>
+
+
 
 {% endblock main %}

@@ -169,8 +169,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'deisi.horarios@gmail.com'
-EMAIL_HOST_PASSWORD = 'rybu dwjs icuf xxnv'  # usar uma google app password
+EMAIL_HOST_USER = 'pweb.profs@gmail.com'  # 'deisi.horarios@gmail.com'
+EMAIL_HOST_PASSWORD = 'dhzw yqpl mnqe nohj'  # usar uma google app password
 
 LOGIN_URL = 'horarios:login'
 

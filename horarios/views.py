@@ -9,6 +9,7 @@ from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.mail import get_connection
 
 
 from django.core.mail import send_mail
@@ -19,10 +20,70 @@ from .forms import *
 import json, random, string
 import base64
 
+from django.contrib.auth.decorators import user_passes_test
+
+def is_sata(user):
+    return user.groups.filter(name="sata").exists()
+
+
+
+from django.db.models import Prefetch
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+SEMESTRE_ATUAL = '2'
+
 inscricoes_abertas = True
 semestre = 2
 ano_lectivo = '25-26'
 lista_disciplinas_recuperacao = ['Matemática I (2º Sem)', 'Fund Programação (2º Sem)', 'Fundamentos de Física (2º Sem)']
+
+
+
+# Lista de templates
+email_templates = [
+    {
+        "subject": "Acesso aos horários LEI",
+        "body": "Olá,\n\nRecebemos um pedido para atualizar a sua palavra‑chave.\nPara continuar, utilize o link abaixo:\n\n{{reset_link}}\n\nSe não fez este pedido, pode ignorar esta mensagem."
+    },
+    {
+        "subject": "Reposição de palavra‑chave – horarios LEI",
+        "body": "Olá,\n\nPara redefinir a sua palavra‑chave de acesso aos horários LEI, siga este link:\n\n{{reset_link}}\n\nEste link é válido por tempo limitado."
+    },
+    {
+        "subject": "Confirmação de pedido de acesso",
+        "body": "Viva,\n\nFoi solicitado um novo acesso à plataforma de horários LEI.\nPode concluí‑lo aqui:\n\n{{reset_link}}"
+    },
+    {
+        "subject": "Atualização de credenciais – LEI",
+        "body": "Olá,\n\nPara atualizar a sua palavra‑chave e continuar a usar a plataforma, clique no link seguinte:\n\n{{reset_link}}"
+    },
+    {
+        "subject": "Pedido de redefinição confirmado",
+        "body": "Olá,\n\nO seu pedido foi registado com sucesso.\nUtilize o link abaixo para definir uma nova palavra‑chave:\n\n{{reset_link}}"
+    },
+    {
+        "subject": "Ação necessária: acesso App Horarios",
+        "body": "Olá,\n\nPara concluir o processo de acesso aos horários LEI, siga este endereço:\n\n{{reset_link}}\n\nObrigado."
+    },
+    {
+        "subject": "Novo acesso à plataforma LEI",
+        "body": "Viva,\n\nEstá quase tudo pronto.\nBasta clicar no link abaixo para concluir a redefinição da palavra‑chave:\n\n{{reset_link}}"
+    },
+    {
+        "subject": "Segurança da conta – LEI",
+        "body": "Olá,\n\nPor motivos de segurança, a redefinição da palavra‑chave é feita através deste link:\n\n{{reset_link}}"
+    },
+    {
+        "subject": "Definir nova palavra‑chave",
+        "body": "Olá,\n\nPara definir uma nova palavra‑chave de acesso, utilize o link seguinte:\n\n{{reset_link}}\n\nCaso não tenha feito este pedido, ignore este email."
+    },
+    {
+        "subject": "Continuação do pedido de acesso",
+        "body": "Olá,\n\nPode continuar o processo de acesso à plataforma através do link abaixo:\n\n{{reset_link}}"
+    }
+]
+
+
 
 # Create your views here.
 
@@ -37,7 +98,7 @@ def horarios_view(request):
         'horarios':horarios,
         'inscricoes_abertas': inscricoes_abertas,
         'semestre':semestre,
-        'ano_lectivo':ano_lectivo,
+        'ano_lectivo':ano_lectivo
     }
 
     print("Estou em horarios_view. Autenticado?", request.user.is_authenticated)
@@ -314,17 +375,22 @@ def cancelar_inscricao_viewmmmmm(request, turmadisciplina_id):
 
     return redirect('horarios:disciplinas')
 
+##############################################
+##############################################
+##############################################
 
-
+@user_passes_test(is_sata)
 def lista_disciplinas_view(request):
 
     disciplinas = Disciplina.objects.filter(semestre=semestre, curso__nome='LEI')
 
+    disciplinas0 = Disciplina.objects.filter(semestre=semestre, curso__sigla='LEI', ano=0)
     disciplinas1 = Disciplina.objects.filter(semestre=semestre, curso__sigla='LEI', ano=1)
     disciplinas2 = Disciplina.objects.filter(semestre=semestre, curso__sigla='LEI', ano=2)
     disciplinas3 = Disciplina.objects.filter(semestre=semestre, curso__sigla='LEI', ano=3)
 
     context = {'disciplinas': [
+            [(d, sum([len(t.alunos.all())+len(t.alunos_avulso.all())  for t in TurmaDisciplina.objects.filter(disciplina=d)]))  for d in disciplinas0],
             [(d, sum([len(t.alunos.all())+len(t.alunos_avulso.all())  for t in TurmaDisciplina.objects.filter(disciplina=d)]))  for d in disciplinas1],
             [(d, sum([len(t.alunos.all())+len(t.alunos_avulso.all())  for t in TurmaDisciplina.objects.filter(disciplina=d)]))  for d in disciplinas2],
             [(d, sum([len(t.alunos.all())+len(t.alunos_avulso.all())  for t in TurmaDisciplina.objects.filter(disciplina=d)]))  for d in disciplinas3],
@@ -332,7 +398,7 @@ def lista_disciplinas_view(request):
 
     return render(request, 'horarios/lista_disciplinas.html', context)
 
-
+@user_passes_test(is_sata)
 def lista_turmas_de_disciplina_view(request, disciplina_id):
 
     disciplina = Disciplina.objects.get(id=disciplina_id)
@@ -348,7 +414,7 @@ def lista_turmas_de_disciplina_view(request, disciplina_id):
     return render(request, 'horarios/lista_turmas_disciplina.html', context)
 
 
-
+@user_passes_test(is_sata)
 def lista_alunos_turma_view(request, turmadisciplina_id):
     turmadisciplina = TurmaDisciplina.objects.get(id=turmadisciplina_id)
 
@@ -359,6 +425,10 @@ def lista_alunos_turma_view(request, turmadisciplina_id):
     }
     return render(request, 'horarios/lista_alunos_turmas_disciplina.html', context)
 
+
+##############################################
+##############################################
+##############################################
 
 
 def fazer_inscricao_mesmo_ano_view(request, disciplina_id):
@@ -433,82 +503,113 @@ def finalizar_view(request):
 #############################################################################################################################
 
 
+
 @login_required
+@user_passes_test(is_sata)
 def report_view(request):
 
     info = {}
-    for curso in Curso.objects.all():
-        info[curso.sigla]={}
-        turmas = Turma.objects.filter(curso=curso, semestre=semestre).order_by('ano','nome')
-        for turma in turmas:
-            info[curso.sigla][turma.nome] = {}
-            alunos = set()
 
-            turmadisciplinas = TurmaDisciplina.objects.filter(turma=turma, disciplina__semestre=semestre)
+    # Prefetch de TurmaDisciplina apenas do semestre 2 (via turma e disciplina)
+    turmadisciplina_prefetch = Prefetch(
+        'turmasdisciplinas',
+        queryset=TurmaDisciplina.objects.select_related('disciplina').prefetch_related('alunos', 'alunos_avulso').filter(
+            turma__semestre=SEMESTRE_ATUAL,
+            disciplina__semestre=SEMESTRE_ATUAL
+        )
+    )
 
-            for turmadisciplina in turmadisciplinas:
-                for aluno in turmadisciplina.alunos.all():
-                    if turmadisciplina.disciplina.nome not in lista_disciplinas_recuperacao:
-                        alunos.add(aluno)
+    # Turmas apenas do semestre 2
+    cursos = Curso.objects.prefetch_related(
+        Prefetch(
+            'turmas',
+            queryset=Turma.objects.filter(semestre=SEMESTRE_ATUAL).prefetch_related(turmadisciplina_prefetch)
+        )
+    )
 
+    # Disciplinas de recuperação do semestre 2
+    turmadisciplinas_recuperacao = TurmaDisciplina.objects.filter(
+        disciplina__nome__in=lista_disciplinas_recuperacao,
+        turma__semestre=SEMESTRE_ATUAL,
+        disciplina__semestre=SEMESTRE_ATUAL
+    ).prefetch_related('alunos', 'alunos_avulso', 'turma')
 
-            info[curso.sigla][turma.nome]['alunos'] = sorted(list(alunos), key=lambda a:a.user.username)
+    # Map disciplina de recuperação -> lista de alunos
+    disciplinas_recuperacao_map = {}
+    for td in turmadisciplinas_recuperacao:
+        nome = td.disciplina.nome
+        if nome not in disciplinas_recuperacao_map:
+            disciplinas_recuperacao_map[nome] = []
+        disciplinas_recuperacao_map[nome] += list(td.alunos.all()) + list(td.alunos_avulso.all())
 
-            info[curso.sigla][turma.nome]['alunos_out'] = {aluno:[] for aluno in list(alunos)}
-            for aluno in info[curso.sigla][turma.nome]['alunos']:
-                for turmadisciplina in turmadisciplinas:
-                    if turmadisciplina.disciplina.nome in lista_disciplinas_recuperacao:
+    # Ordenar alunos
+    for nome, alunos_list in disciplinas_recuperacao_map.items():
+        disciplinas_recuperacao_map[nome] = sorted(alunos_list, key=lambda a: a.user.username)
+
+    # Construir info
+    for curso in cursos:
+        info[curso.sigla] = {}
+
+        for turma in curso.turmas.all():
+            info[curso.sigla][(turma.nome, turma.ano)] = {}
+
+            # Alunos regulares (excluindo disciplinas de recuperação)
+            alunos_set = set()
+            for td in turma.turmasdisciplinas.all():
+                if td.disciplina.nome not in lista_disciplinas_recuperacao:
+                    alunos_set.update(td.alunos.all())
+
+            alunos_list = sorted(list(alunos_set), key=lambda a: a.user.username)
+            info[curso.sigla][(turma.nome, turma.ano)]['alunos'] = alunos_list
+
+            # Alunos fora (faltas em disciplinas regulares)
+            alunos_out = {aluno: [] for aluno in alunos_list}
+            for aluno in alunos_list:
+                for td in turma.turmasdisciplinas.all():
+                    if td.disciplina.nome in lista_disciplinas_recuperacao:
                         continue
-                    if aluno not in turmadisciplina.alunos.all() and aluno not in turmadisciplina.alunos_avulso.all():
-                        info[curso.sigla][turma.nome]['alunos_out'][aluno].append(turmadisciplina.disciplina)
+                    if aluno not in td.alunos.all() and aluno not in td.alunos_avulso.all():
+                        alunos_out[aluno].append(td.disciplina)
+            info[curso.sigla][(turma.nome, turma.ano)]['alunos_out'] = alunos_out
 
-            info[curso.sigla][turma.nome]['alunos_avulso'] = {}
-            disciplinas = {}
-            for turmadisciplina in turmadisciplinas:
-                if turmadisciplina.disciplina.nome in lista_disciplinas_recuperacao:
+            # Alunos avulso por disciplina (não recuperação)
+            disciplinas_avulso = {}
+            for td in turma.turmasdisciplinas.all():
+                if td.disciplina.nome in lista_disciplinas_recuperacao:
                     continue
+                disciplinas_avulso[td.disciplina] = sorted(list(td.alunos_avulso.all()), key=lambda a: a.user.username)
+            info[curso.sigla][(turma.nome, turma.ano)]['alunos_avulso'] = disciplinas_avulso
 
-                alunos = []
-                for aluno in turmadisciplina.alunos_avulso.all():
-                    alunos.append(aluno)
-                disciplinas[turmadisciplina.disciplina] = sorted(alunos, key=lambda a:a.user.username)
 
-        # disciplinas de recuperação
-            disciplinas = {}
-            for disciplina in lista_disciplinas_recuperacao:
-                for turmadisciplina in TurmaDisciplina.objects.filter(disciplina__nome=disciplina):
-                    if disciplina in disciplinas:
-                        disciplinas[disciplina] += [aluno for aluno in turmadisciplina.alunos.all()] + [aluno for aluno in turmadisciplina.alunos_avulso.all()]
-                    else:
-                        disciplinas[disciplina] = [aluno for aluno in turmadisciplina.alunos.all()] + [aluno for aluno in turmadisciplina.alunos_avulso.all()]
-                disciplinas[disciplina].sort(key=lambda a:a.user.username)
+            # Alunos inscritos em todas as disciplinas regulares da turma
+            disciplinas_regulares = [
+                td for td in turma.turmasdisciplinas.all()
+                if td.disciplina.nome not in lista_disciplinas_recuperacao
+            ]
 
-            info[curso.sigla]['D01EINF01']['alunos_avulso'] = disciplinas
+            if disciplinas_regulares:
+                # Começa com o conjunto de alunos da primeira disciplina
+                alunos_todas = set(disciplinas_regulares[0].alunos.all())
+                # Intersecta com os conjuntos de alunos das outras disciplinas
+                for td in disciplinas_regulares[1:]:
+                    alunos_todas.intersection_update(td.alunos.all())
+                info[curso.sigla][(turma.nome, turma.ano)]['alunos_todas'] = sorted(list(alunos_todas), key=lambda a: a.user.username)
+            else:
+                info[curso.sigla][(turma.nome, turma.ano)]['alunos_todas'] = []
 
+
+        # Adicionar disciplinas de recuperação à turma fixa D01EINF01
+        if 'D01EINF01' in info[curso.sigla]:
+            info[curso.sigla]['D01EINF01']['alunos_avulso'] = disciplinas_recuperacao_map
 
     context = {
         'info': info,
-        'semestre':semestre,
+        'semestre': SEMESTRE_ATUAL,
     }
 
     return render(request, 'horarios/report.html', context)
 
 
-
-@login_required
-def report_alunos_view(request):
-
-    info = {}
-    for aluno in Aluno.objects.all():
-        info[aluno.nome_completo]=[]
-        for turmadisciplina in TurmaDisciplina.objects.all():
-            if aluno in turmadisciplina.alunos.all():
-                info[aluno.nome_completo].append(turmadisciplina.turma.nome)
-    context = {
-        'info': info,
-    }
-
-    return render(request, 'horarios/report_alunos.html', context)
 
 
 def email_view(request):
@@ -535,14 +636,79 @@ def email_view(request):
     return redirect('horario:finalizar')
 
 
+from django.db.models import Prefetch
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
 
+SEMESTRE_ATUAL = '2'  # 2º semestre
+
+@login_required
+@user_passes_test(is_sata)
+def report_alunos_view(request):
+    info = {}
+
+    # Prefetch de TurmaDisciplina e alunos para evitar N+1
+    turmadisciplina_prefetch = Prefetch(
+        'turmasdisciplinas',
+        queryset=TurmaDisciplina.objects.prefetch_related('alunos', 'alunos_avulso').filter(
+            turma__semestre=SEMESTRE_ATUAL,
+            disciplina__semestre=SEMESTRE_ATUAL
+        )
+    )
+
+    # Prefetch das turmas e disciplinas de cada curso
+    alunos = Aluno.objects.prefetch_related(
+        Prefetch('curso__turmas', queryset=Turma.objects.prefetch_related(turmadisciplina_prefetch))
+    )
+
+    n_alunos_inscritos = 0
+    for aluno in alunos:
+        info[(aluno.nome_completo, aluno.user.username)] = []
+        # Percorrer apenas turmas do semestre 2 do curso do aluno
+        for turma in aluno.curso.turmas.all():
+            for td in turma.turmasdisciplinas.all():
+                if aluno in td.alunos.all() or aluno in td.alunos_avulso.all():
+                    info[(aluno.nome_completo, aluno.user.username)].append((td.disciplina, td.turma))
+        info[(aluno.nome_completo, aluno.user.username)].sort(key=lambda e: (e[0].ano,e[0].nome))
+
+        n_alunos_inscritos += 1 if len(info[(aluno.nome_completo, aluno.user.username)]) > 0 else 0
+
+    context = {'info': info, 'n_alunos_inscritos': n_alunos_inscritos, 'n_alunos_faltam': len(alunos) - n_alunos_inscritos}
+    return render(request, 'horarios/report_alunos.html', context)
+
+
+@login_required
+def email_view(request):
+    email = request.POST.get('email')
+    user = User.objects.filter(email=email).first()
+    if not user:
+        # trata caso de email não encontrado
+        return redirect('horario:finalizar')
+
+    aluno = user.aluno  # relação OneToOne
+    token = defau
+
+
+
+
+
+@user_passes_test(is_sata)
 def report_alunos_nao_escolheram_turma_view(request):
     alunos_None = Aluno.objects.filter(turma=None)
     alunos_0 = Aluno.objects.filter(turma__exact='')
 
+    alunos = alunos_None | alunos_0
+
+    alunos = [aluno for aluno in alunos if aluno.user.username[0] != 'p' and aluno.user.username[0] != 'f']
+
     context = {
-        'alunos': alunos_None | alunos_0,
+        'alunos': alunos,
     }
+
+
+
     return render(request, 'horarios/report_alunos_sem_turma.html', context)
 
 
@@ -639,6 +805,8 @@ def logout_view(request):
     return redirect('horarios:horarios')
 
 
+
+
 def forgot_password(request):
 
   if request.method != 'POST':
@@ -667,11 +835,22 @@ def forgot_password(request):
 
   reset_link = request.build_absolute_uri(f'/reset/{uidb64}/{token}/')
 
-  send_mail('Horários LEI: Definição de palavra chave',
-        f'Olá,\n\nPediu para redefinir a sua palavra chave, clique por favor no seguinte link:\n\n{reset_link}',
-        'horarios.deisi@gmail.com',
-        [user.email.strip()]
-  )
+
+  template = random.choice(email_templates)
+  subject = template["subject"]
+  body = template["body"].replace("{{reset_link}}", reset_link)
+
+    # Enviar email
+  with get_connection() as connection:
+    send_mail(
+        subject,
+        body,
+        'pweb.profs@gmail.com',          # 'deisi.horarios@gmail.com',
+        [user.email.strip()],
+        connection=connection,
+        fail_silently=False,
+    )
+
 
   return render(request, 'horarios/forgot.html', {'success': f'Foi enviado um email para <b style="font-weight:bold;">{user.email}</b> com um link para redefinir a sua senha.'})
 

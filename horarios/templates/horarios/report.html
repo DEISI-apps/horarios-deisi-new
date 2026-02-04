@@ -79,13 +79,23 @@ div.menu a:nth-child(3) {
     <h1>{{curso}}</h1>
         {% for turma,dados in turmas.items %}
         <br>
-        <h3 style="background:var(--contraste); color:white; padding:15px; display:block;">Turma {{turma}}</h3>
-        <p><b>inscritos em {{turma}}</b></p>
+        <h3 style="background:var(--contraste); color:white; padding:15px; display:block;">{{turma.1}}º Ano: {{turma.0}}</h3>
+
+        <p><b>Alunos inscritos em todas as UCs da turma:</b></p>
             <ul>
+            {% for aluno in dados.alunos_todas %}
+                <li> {{aluno.user.username|slice:"1:"}} - {{aluno}}</li>
+            {% empty %}
+                <li>Nenhum aluno inscrito em todas as disciplinas</li>
+            {% endfor %}
+            </ul>
+
+        <p><b>Alunos inscritos em pelo menos uma disciplina desta turma:</b></p>
+        <ul>
             {% for aluno in dados.alunos %}
             <li>{{aluno.user.username|slice:"1:"}} - {{aluno}}</li>
             {% endfor %}
-            </ul>
+        </ul>
 
         <p><b>Disciplinas a que alguns dos alunos acima não estao inscritos:</b></p>
             <ul>
