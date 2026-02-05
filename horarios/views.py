@@ -714,6 +714,48 @@ def report_alunos_nao_escolheram_turma_view(request):
 
 
 #############################################################################################################################
+###  ENDPOINTS ##############################################################################################################
+#############################################################################################################################
+
+def turma_alunos_view(request, disciplina_id_dsdeisi, turma_nome):
+    data = {
+            'id_dsdeisi': disciplina_id_dsdeisi,
+            'turma_nome': turma_nome,
+    }
+
+    try:
+        turma = TurmaDisciplina.objects.get(
+                disciplina__id_dsdeisi=disciplina_id_dsdeisi,
+                turma__nome =turma_nome
+            )
+
+        data |= {
+            'disciplina': turma.disciplina.nome,
+            'turma': turma.turma.nome,
+        }
+
+        serialized_alunos = [{'nome': str(a), 'numero': a.user.username, 'email': a.user.email } for a in turma.alunos.all()]
+
+        data |= {
+            'alunos': serialized_alunos,
+        }
+
+        serialized_alunos_avulso = [{'nome': str(a), 'numero': a.user.username, 'email': a.user.email }for a in turma.alunos_avulso.all()]
+
+        data |= {
+            'alunos_avulso': serialized_alunos_avulso,
+        }
+
+        return JsonResponse(data, status=200)
+    except:
+
+        data['erro'] = "erro!!"
+
+        return JsonResponse(data, status=404)
+
+
+
+#############################################################################################################################
 #############################################################################################################################
 #############################################################################################################################
 #############################################################################################################################

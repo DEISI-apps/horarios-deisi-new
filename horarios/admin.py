@@ -15,7 +15,8 @@ admin.site.register(Horario, HorarioAdmin)
 
 
 class DisciplinaAdmin(admin.ModelAdmin):
-    list_display = ('curso', 'nome', 'ano', 'semestre')
+    list_display = ('curso', 'nome', 'id_dsdeisi', 'ano', 'semestre')
+    list_editable = ['id_dsdeisi', ]
     ordering = ('curso', 'ano', 'semestre', 'nome')
 
 admin.site.register(Disciplina, DisciplinaAdmin)

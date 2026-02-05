@@ -43,6 +43,7 @@ class Aluno(models.Model):
 
 
 class Disciplina(models.Model):
+    id_dsdeisi = models.IntegerField(null=True, blank=True)
     nome = models.CharField(max_length=100)
     ano = models.IntegerField(null=True, blank=True)
     semestre = models.IntegerField(null=True, blank=True)

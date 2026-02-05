@@ -43,4 +43,6 @@ urlpatterns = [
     path('forgot_password/', views.forgot_password, name='forgot_password'),
     path('reset/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
     path('registar_aluno/', views.registar_aluno, name='registar_aluno'),
+
+    path('turma-alunos/<int:disciplina_id_dsdeisi>/<str:turma_nome>', views.turma_alunos_view)
 ]
