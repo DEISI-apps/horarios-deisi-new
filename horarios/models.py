@@ -46,7 +46,7 @@ class Disciplina(models.Model):
     nome = models.CharField(max_length=100)
     ano = models.IntegerField(null=True, blank=True)
     semestre = models.IntegerField(null=True, blank=True)
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='disciplinas', default=None)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='disciplinas', default=None) # devia ser M:M !!
 
     def __str__(self):
         return self.nome
