@@ -28,18 +28,18 @@ lista_disciplinas_recuperacao = ['Matemática I (2º Sem)', 'Fund Programação 
 `python manage.py carrega_disciplinas_curso <course sigla> <ano letivo>`
 * this command loads into the database all courses available in URL
 * URL: https://dsdeisi.pythonanywhere.com/disciplinas-curso-json/LEI/23-24
-* exemplo: `python manage.py carrega_disciplinas_curso LEI 25-26`
+* exemplo: `python manage.py carrega_disciplinas_curso LEI 26-27`
 
 
 ### criar turmas dos anos do curso
 
-1. comando: `python manage.py cria_turmas <sigla curso> <prefixo do curso> <ano> <turmasdia> <turmas noite> <lotacao> <lotacao_avulso>`
+1. comando: `python manage.py cria_turmas <sigla curso> <prefixo do curso> <ano> <semestre> <turmasdia> <turmas noite> <lotacao> <lotacao_avulso>`
     * this command creates turmas of a course and year
-    * exemplo: `python manage.py cria_turmas LEI EINF 3 3 1 15 3`
+    * exemplo: `python manage.py cria_turmas LEI EINF 3 1 3 1 15 3`
 
-### carregar de ficheiro JSON alunos do curso
+### carregar alunos do curso a partir de ficheiro JSON
 
-1. criar ficheiro JSON com os alunos, segundo a sintaxe: 
+1. criar ficheiro JSON com os alunos, segundo a sintaxe:
 
 ```json
 [
@@ -59,7 +59,7 @@ lista_disciplinas_recuperacao = ['Matemática I (2º Sem)', 'Fund Programação 
     * this command loads into the database all students of course contained in a file in the commands\data folder
     * exemplo: `python manage.py carrega_alunos LEI alunos.json`
 
-### carregar de ficheiro TXT alunos do curso
+### carregar alunos do curso a partir de ficheiro TXT
 
 1. criar ficheiro TXT com os alunos segundo a sintaxe: `<numero>\t<nome>\t<email>`
 2. colocar ficheiro em `\horarios\management\commands\data`

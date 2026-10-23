@@ -16,7 +16,7 @@ main a {
 
 {% if request.user.is_authenticated %}
 
-<h3>Olá {{ request.user.first_name }} {{ request.user.last_name }}</h3>
+<h3>Olá {{ request.user.first_name }} {{ request.user.last_name }} ({{ request.user.username }})</h3>
 
 <p>Nesta aplicação pode:</p>
 

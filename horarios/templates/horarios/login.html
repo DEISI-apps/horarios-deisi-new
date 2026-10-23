@@ -53,7 +53,10 @@ input[type='submit'] {
 
 <h1>Login</h1>
 
+{% comment %}
 <p>Se nunca usou esta aplicação, <a href="{% url 'horarios:forgot_password' %}" style="color:blue;">defina a sua password</a>.</p>
+{% endcomment %}
+
 
 {% if not request.user.is_authenticated %}
 <b>{{ message }}</b>
@@ -67,9 +70,9 @@ input[type='submit'] {
 
   {% comment %}
   <a class="registar" href="{% url 'horarios:registar_aluno' %}">Registar</a>
-  {% endcomment %}
 
   <a href="{% url 'horarios:forgot_password' %}"  class="botao-big" style="margin-top:30px; color:blue; background:white; border:2px solid blue; border-radius:10px;">Recuperar ou definir password</a>
+  {% endcomment %}
 
 </form>
 

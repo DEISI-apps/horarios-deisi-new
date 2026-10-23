@@ -30,12 +30,12 @@ def is_sata(user):
 from django.db.models import Prefetch
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-SEMESTRE_ATUAL = '2'
+SEMESTRE_ATUAL = '1'
 
 inscricoes_abertas = True
-semestre = 2
-ano_lectivo = '25-26'
-lista_disciplinas_recuperacao = ['Matemática I (2º Sem)', 'Fund Programação (2º Sem)', 'Fundamentos de Física (2º Sem)']
+semestre = 1
+ano_lectivo = '26-27'
+lista_disciplinas_recuperacao = [] # ['Matemática I (2º Sem)', 'Fund Programação (2º Sem)', 'Fundamentos de Física (2º Sem)']
 
 
 
@@ -154,12 +154,16 @@ def turmas_view(request):
                 if aluno in turmaDisciplina.alunos.all():
                     # desinscrever de todas as turma
                     turmaDisciplina.alunos.remove(aluno)
-                if turmaDisciplina.turma == turma and \
-                    turmaDisciplina.disciplina.nome != "Fund Programação 2º Sem" and \
-                    turmaDisciplina.disciplina.nome != "Matemática I" and \
-                    turmaDisciplina.disciplina.nome != "Fundamentos de Física":
-                    # inscrever nesta turma
+                if turmaDisciplina.turma == turma:
+
+                    #and \
+                    #turmaDisciplina.disciplina.nome != "Fund Programação 2º Sem" and \
+                    #turmaDisciplina.disciplina.nome != "Matemática I" and \
+                    #turmaDisciplina.disciplina.nome != "Fundamentos de Física":
+
                     turmaDisciplina.alunos.add(aluno)
+
+
 
             return redirect('horarios:disciplinas')
 
@@ -510,7 +514,7 @@ def report_view(request):
 
     info = {}
 
-    # Prefetch de TurmaDisciplina apenas do semestre 2 (via turma e disciplina)
+    # Prefetch de TurmaDisciplina (via turma e disciplina)
     turmadisciplina_prefetch = Prefetch(
         'turmasdisciplinas',
         queryset=TurmaDisciplina.objects.select_related('disciplina').prefetch_related('alunos', 'alunos_avulso').filter(
@@ -519,7 +523,7 @@ def report_view(request):
         )
     )
 
-    # Turmas apenas do semestre 2
+    # Turmas
     cursos = Curso.objects.prefetch_related(
         Prefetch(
             'turmas',
@@ -527,7 +531,17 @@ def report_view(request):
         )
     )
 
-    # Disciplinas de recuperação do semestre 2
+    cursos = Curso.objects.prefetch_related(
+        Prefetch(
+            'turmas',
+            queryset=Turma.objects
+                .filter(semestre=SEMESTRE_ATUAL)
+                .order_by('ano', 'nome')
+                .prefetch_related(turmadisciplina_prefetch)
+        )
+    )
+
+    # Disciplinas de recuperação
     turmadisciplinas_recuperacao = TurmaDisciplina.objects.filter(
         disciplina__nome__in=lista_disciplinas_recuperacao,
         turma__semestre=SEMESTRE_ATUAL,
@@ -642,7 +656,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 
-SEMESTRE_ATUAL = '2'  # 2º semestre
+SEMESTRE_ATUAL = '1'  # 1º semestre
 
 @login_required
 @user_passes_test(is_sata)
@@ -679,6 +693,178 @@ def report_alunos_view(request):
     return render(request, 'horarios/report_alunos.html', context)
 
 
+import csv
+
+
+siglas = """1,Matemática I
+11047,Interação Humano-Máquina
+12900,Sistemas de Informação nas Organizações (ramo: SI)
+13318,Técnicas de Data Warehouse
+13319,Complementos Engenharia de Software
+13398,Arquitetura Avançada de Computadores
+13558,Algoritmia e Estrutura de Dados
+13763,Metodologias de Investigação e inovação
+13766,OPÇÃO->Sistemas Sem Fios Cooperativos
+15412,Seminário de Orientação
+15430,Data Minning
+1656,Matemática Discreta
+16927,Projeto de Telecomunicações
+1792,Bases de Dados
+1796,Contabilidade
+19082,Desenvolvimento Responsável de Software Suportado por IA Generativa
+2129,Opção III - Intel Artificial
+21942,OPÇÃO->Cibersegurança
+22513,Data Science
+23041,Direito Informático
+23084,Fundamentos de Ciência de Dados
+23265,Introdução à Ciências de Dados
+23869,Ciência de Dados
+24297,Tópicos em Aprendizagem Automatizada e suas Aplicações
+24446,Fundamentos de Engenharia de Dados
+24449,Visão Computacional
+24450,Aprendizagem Automatizada II
+24452,Introdução à Inteligência Artificial
+24454,"Introdução à Privacidade, Segurança e Ética"
+24454,"Introdução à Privacidade, Segurança e Ética (Op II)"
+24496,Introdução à Matemática das Probabilidades
+24497,Fundamentos de Engenharia de Dados p/ CD
+24498,Introdução às Equações Diferenciais Ordinárias
+25060,Técnicas de Programação Segura
+25061,Desenvolvimento e operacionalização de aplicações
+25069,Administração de Redes e Infraestrutura de IT
+25228,"Privacidade, Segurança e Ética em Ciência de Dados"
+25229,Fundamentos de Estatística para Ciências de Dados
+25230,Programação Aplicada para Ciências de Dados
+25232,Visualização de Informação Avançada
+25233,Fundamentos de Sistemas de Recomendação
+25626,OPÇÃO->Inteligência Artificial Integrada
+25627,OPÇÃO->Sistemas Baseados em Posicionamento
+25628,OPÇÃO->Eng. Software e Ciência de Dados
+25632,OPÇÃO-> Aprendizagem Automatizada Avançada
+25632,OPÇÃO->Introdução a Ciência das Rede
+26020,Fundamentos de Processos de Mineração
+26022,Fundamentos de processamento de Linguagem Natural
+26110,Gestão de Processos de Negócio
+26141,Desenvolvimento Interfaces Web
+26190,Programação Low-Code e No-Code
+27242,Tópicos Avançados em Redes Neuronais ou Princípios de IA e Aprendizagem Automatizada (Op 1)
+27247,Programação para IA ou Geração de Linguagem Natural (Op 3)
+339,Introdução às Ciências da Computação
+5140,Trabalho Final de Curso
+620,Probabilidades e Estatistica
+6305,Sistemas Operativos
+7,Sistemas Digitais
+7334,Metodologias de Investigação Científica
+7334,Metodologias de Investigação Científica (Op II)
+7336,Fundamentos de Física
+7337,Fundamentos de Programação
+7339,Sinais e Sistemas
+7340,Instrumentos de Gestão
+7341,Engenharia de Software
+7348,Computação Distribuída
+7349,Complementos de Redes
+7432,Teoria e Prática de Marketing
+7434,Motivação e Liderança
+7435,Sistemas Móveis Empresariais
+7628,Seminário de Projecto
+7646,Fundamentos de Telecomunicações
+8334,Fundamentos de Sistemas de Informação
+8341,Gestão de Sistemas e Tecnologias de Informação
+8448,Base de Dados
+8850,Marketing em Tecnologias da Informação
+8856,Tecnologias e Planeamento de Segurança
+898,Linguagens de Programação II"""
+
+
+s = { i.split(",")[1]: i.split(",")[0] for i in siglas.split('\n') }
+
+
+
+
+
+@login_required
+@user_passes_test(is_sata)
+def report_alunos_csv_view(request):
+    info = {}
+
+    # Prefetch de TurmaDisciplina e alunos para evitar N+1
+    turmadisciplina_prefetch = Prefetch(
+        'turmasdisciplinas',
+        queryset=TurmaDisciplina.objects.prefetch_related('alunos', 'alunos_avulso').filter(
+            turma__semestre=SEMESTRE_ATUAL,
+            disciplina__semestre=SEMESTRE_ATUAL
+        )
+    )
+
+    # Prefetch das turmas e disciplinas de cada curso
+    alunos = Aluno.objects.prefetch_related(
+        Prefetch('curso__turmas', queryset=Turma.objects.prefetch_related(turmadisciplina_prefetch))
+    )
+
+    n_alunos_inscritos = 0
+    for aluno in alunos:
+        info[(aluno.nome_completo, aluno.user.username)] = []
+        # Percorrer apenas turmas do semestre 2 do curso do aluno
+        for turma in aluno.curso.turmas.all():
+            for td in turma.turmasdisciplinas.all():
+                if aluno in td.alunos.all() or aluno in td.alunos_avulso.all():
+                    info[(aluno.nome_completo, aluno.user.username)].append((td.disciplina, td.disciplina.id_dsdeisi, td.turma))
+        info[(aluno.nome_completo, aluno.user.username)].sort(key=lambda e: (e[0].ano,e[0].nome))
+
+        n_alunos_inscritos += 1 if len(info[(aluno.nome_completo, aluno.user.username)]) > 0 else 0
+
+
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="alunos-turmas.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow(["nome", "numero", "disciplina", "id disciplina", "turma"])
+
+
+    for aluno, data in info.items():
+
+        for disciplina, id, turma in data:
+
+            writer.writerow([
+                aluno[0],
+                aluno[1],
+                disciplina,
+                s[disciplina.nome],
+                turma,
+        ])
+
+    return response
+
+
+
+
+@login_required
+@user_passes_test(is_sata)
+def report_alunos_numeros_view(request):
+
+
+    alunos = Aluno.objects.select_related("user")
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="alunos-numeros.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow(["numero", "nome"])
+
+
+    for aluno in alunos:
+
+            writer.writerow([
+                aluno.user.username,
+                aluno.user,
+        ])
+
+    return response
+
+
 @login_required
 def email_view(request):
     email = request.POST.get('email')
@@ -710,6 +896,7 @@ def report_alunos_nao_escolheram_turma_view(request):
 
 
     return render(request, 'horarios/report_alunos_sem_turma.html', context)
+
 
 
 
@@ -755,6 +942,58 @@ def turma_alunos_view(request, disciplina_id_dsdeisi, turma_nome):
 
 
 
+from urllib.parse import unquote
+
+def aluno_turmas_view(request, numeroAluno):
+
+    data = {'numeroAluno': numeroAluno}
+
+    try:
+        aluno = Aluno.objects.get(user__username=numeroAluno.strip().lower())
+        data |= {
+            'aluno': str(aluno),
+            'numero': str(aluno.user.username),
+        }
+
+
+        turmas  = []
+        for turmasdisciplina in aluno.turmasdisciplinas.all():
+            turmas.append({
+                'disciplina': str(turmasdisciplina.disciplina),
+                'id_dsdeisi': str(turmasdisciplina.disciplina.id_dsdeisi),
+                'turma': str(turmasdisciplina.turma)
+            })
+
+        for turmasdisciplina in aluno.turmasdisciplinas_avulso.all():
+            turmas.append({
+                'disciplina': str(turmasdisciplina.disciplina),
+                'id_dsdeisi': str(turmasdisciplina.disciplina.id_dsdeisi),
+                'turma': str(turmasdisciplina.turma)
+            })
+
+        data['turmas'] = turmas
+
+        return JsonResponse(data, status=200)
+
+    except Aluno.DoesNotExist:
+        return JsonResponse({'erro': 'Aluno não encontrado'}, status=404)
+
+
+def aluno_numero_view(request, emailAluno):
+
+    try:
+        aluno = Aluno.objects.get(user__email=emailAluno)
+        data = {
+            'aluno': str(aluno),
+            'numero': str(aluno.user.username),
+        }
+
+        return JsonResponse(data, status=200)
+
+    except Aluno.DoesNotExist:
+        return JsonResponse({'erro': 'Aluno não encontrado'}, status=404)
+
+
 #############################################################################################################################
 #############################################################################################################################
 #############################################################################################################################
@@ -762,6 +1001,9 @@ def turma_alunos_view(request, disciplina_id_dsdeisi, turma_nome):
 
 
 def login_view(request):
+
+
+
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
@@ -774,26 +1016,20 @@ def login_view(request):
             )
 
 
+      #  inscricoes fechadas nao faz login
+      #  if not inscricoes_abertas  and username[0] == 'a':
+      #      return redirect('horarios:horarios')
+
         user = authenticate(
             request,
-            username=username.strip('a') if username != 'admin' else username,
+            username=username if username != 'admin' else username,
             password=password
         )
 
-
-        print("user", user, "authenticade")
+        print("user", username, password, user)
 
         if user is not None:
-            print("user is not None. User is:", user, "username", username, "password", password)
             login(request, user)
-
-            if request.user.is_authenticated:
-                # O user está logado
-                print("User logado:", request.user)
-            else:
-                # O user NÃO está logado
-                print("User anónimo")
-
             return redirect('horarios:horarios')
 
         return render(
@@ -807,38 +1043,6 @@ def login_view(request):
 
     return render(request, 'horarios/login.html')
 
-
-
-def __login_view(request):
-
-    print("LOGIN")
-    if request.method == 'POST':
-
-        username = request.POST['username'].strip()
-        password = request.POST['password'].strip()
-
-        print(username,password)
-
-        u = User.objects.get(username=username)
-        email = u.email
-        print("user:",  u, ", Email:", email)
-
-        user = authenticate(request, email=email, password=password)
-        print("user: ", user)
-
-        if user is not None:
-            print("user is not None", user)
-            login(request, user)
-            return redirect('horarios:horarios')
-
-        return render(request, 'horarios/login.html', {
-            'message': 'Credenciais inválidas'
-        })
-
-    if request.user.is_authenticated:
-        return redirect('horarios:horarios')
-    else:
-        return render(request, 'horarios/login.html')
 
 
 
@@ -863,7 +1067,7 @@ def forgot_password(request):
         {'error': 'Por favor, insira o seu número de aluno'}
     )
 
-  user = User.objects.filter( username=username.strip().strip('a')).first()
+  user = User.objects.filter( username=username.strip()).first()
 
   if not user:
     return render(

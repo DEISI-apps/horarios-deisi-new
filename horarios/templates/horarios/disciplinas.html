@@ -85,9 +85,9 @@ div.menu a:nth-child(3) {
 
 {% for disciplinas in disciplinas_por_ano %}
     <div style="text-align:center;">
-        {% if forloop.counter0 == aluno.ano %}
+        {% if forloop.counter == aluno.ano %}
             <h2 style="margin:30px -2em 0;text-align:center; color:var(--contraste); padding: 5px 10px; border-radius:5px;">
-                Inscrito no <br> {{ forloop.counter0 }}º Ano, turma {{ turma }}
+                Inscrito no <br> {{ forloop.counter }}º Ano, turma {{ turma }}
             </h2>
 
             <p style="font-weight:300; font-size:0.8em !important; color:grey; margin-top:0.3em;margin-bottom:0.2em;">
@@ -95,7 +95,7 @@ div.menu a:nth-child(3) {
             </p>
 
        {% else %}
-            {% if forloop.counter0 == 0 %}
+            {% if forloop.counter0 == 0 and semestre == 2 %}
 
                 <h2 style="margin:30px -2em 0;text-align:center; padding: 5px 10px; border-radius:5px;">
                     <div style="padding-right:0.5em"> Turmas extra!

@@ -84,7 +84,7 @@ div.menu a:nth-child(3) {
         <p><b>Alunos inscritos em todas as UCs da turma:</b></p>
             <ul>
             {% for aluno in dados.alunos_todas %}
-                <li> {{aluno.user.username|slice:"1:"}} - {{aluno}}</li>
+                <li> {{aluno.user.username}} - {{aluno}}</li>
             {% empty %}
                 <li>Nenhum aluno inscrito em todas as disciplinas</li>
             {% endfor %}
@@ -93,7 +93,7 @@ div.menu a:nth-child(3) {
         <p><b>Alunos inscritos em pelo menos uma disciplina desta turma:</b></p>
         <ul>
             {% for aluno in dados.alunos %}
-            <li>{{aluno.user.username|slice:"1:"}} - {{aluno}}</li>
+            <li>{{aluno.user.username}} - {{aluno}}</li>
             {% endfor %}
         </ul>
 
@@ -101,7 +101,7 @@ div.menu a:nth-child(3) {
             <ul>
             {% for aluno,disciplinas in dados.alunos_out.items %}
             {% if disciplinas|length != 0 %}
-            <li>{{aluno.user.username|slice:"1:"}} - {{aluno}}:
+            <li>{{aluno.user.username}} - {{aluno}}:
                 <ul>
                 {% for disciplina in disciplinas %}
                     <li>{{disciplina}}</li>
@@ -118,7 +118,7 @@ div.menu a:nth-child(3) {
             <li>{{disciplina}}</li>
                 <ul>
                 {% for aluno in alunos %}
-                <li>{{aluno.user.username|slice:"1:"}} - {{aluno}}</li>
+                <li>{{aluno.user.username}} - {{aluno}}</li>
                 {% endfor %}
                 </ul>
             {% endfor %}

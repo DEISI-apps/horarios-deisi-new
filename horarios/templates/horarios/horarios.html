@@ -39,61 +39,47 @@ div.menu a:nth-child(1) {
 
 <div style="max-width: 700px; margin: auto;">
 
+{% if not inscricoes_abertas %}
 
-{% if request.user.is_authenticated %}
-
-    <p><b style="font-weight:bold;">{{ request.user.first_name|title }} {{ request.user.last_name|title }}</b>, no {{semestre}}º semestre de {{ano_lectivo}} <span  style="font-weight:bold;"> escolheu turma/horário para as seguintes disciplinas</span>:</p>
-    <ul>
-        {% for turmadisciplina in turmasdisciplinas %}
-        <li>
-            <b style="font-weight:bold;">{{ turmadisciplina.disciplina }}</b> {{ turmadisciplina.turma }}
-        </li>
-        {% empty %}
-        <li>Ainda não se inscreveu em nenhuma turma </li>
-        {% endfor %}
-    </ul>
-
-
-{% comment %}
-    <p style="background:whitesmoke; padding:1em; padding-left:15ch; width:100%; line-height:1.5em; text-align:justify; font-size:0.7em;">
-        Convenção de numeração das turmas:
-        <b><span style="color:blue">L</span><span style="color:green">D</span><span style="color:purple">01</span>EINF<span style="color:red">03</span></b> lê-se <br>
-        <span style="color:blue"><b>L</b> (L:Lab, T:Teorica, P:Pratica)</span><br>
-        <span style="color:green"><b>D</b> (D:Dia, N:Noite)</span> <br>
-        <span style="color:purple"><b>01</b> (turma teórica 1)</span><br>
-        <span><b>EINF</b> (curso: Engenharia INFormática)</span><br>
-        <span style="color:red"><b>03</b> (turma 3)</span>
-    </p>
-
-{% endcomment %}
-
-    {% if not aluno.turma %}
-    <p><b>Escolha primeiro uma turma do ano em que tem mais disciplinas e depois adicione/remova disciplinas. </b></p>
-    {% endif %}
+    <p style="text-align:center;">O período de escolha de horário já encerrou</p>
 
 
 {% else %}
 
+    {% if request.user.is_authenticated %}
 
+        <p><b style="font-weight:bold;">{{ request.user.first_name|title }} {{ request.user.last_name|title }} ({{ request.user.username }})</b>, no {{semestre}}º semestre de {{ano_lectivo}} <span  style="font-weight:bold;"> escolheu turma/horário para as seguintes disciplinas</span>:</p>
+        <ul>
+            {% for turmadisciplina in turmasdisciplinas %}
+            <li>
+                <b style="font-weight:bold;">{{ turmadisciplina.disciplina }}</b> {{ turmadisciplina.turma }}
+            </li>
+            {% empty %}
+            <li>Ainda não se inscreveu em nenhuma turma </li>
+            {% endfor %}
+        </ul>
 
-    <p><strong style="font-weight:bold;">Escolha até 5 de fevereiro a sua turma/horário</strong> para ficar com o seu colega de grupo, amigos ou porque o horário lhe convém mais:</p>
-    <ol>
+        {% if not aluno.turma %}
+        <p><b>Escolha primeiro uma turma do ano em que tem mais disciplinas e depois adicione/remova disciplinas. </b></p>
+        {% endif %}
 
-        <li><strong style="font-weight:bold;">Faça login</strong>.</li>
-        <li><strong style="font-weight:bold;">Escolha uma turma do ano que frequenta</strong>, que integra o horario de todas as disciplinas.</li>
-        <li><strong style="font-weight:bold;">Para disciplinas em atraso, escolha uma turma</strong> que melhor se encaixe no seu horário.</li>
-        <li>Pode adicionar/remover disciplinas, de acordo com o que se inscreveu no NetPA.</li>
-    {% comment %}
-        <li>Finalizar, receber um email com informação das inscrições que realizou</li>
-    {% endcomment %}
+    {% else %}
 
-        <li><strong style="font-weight:bold;">Pode alterar as suas escolhas</strong> enquanto o período de inscrições estiver aberto. Estas preferências serão registadas nas plataformas da Lusófona.</li>
-    </ol>
+        <p><strong style="font-weight:bold;">Escolha até 5 de fevereiro a sua turma/horário</strong> para ficar com o seu colega de grupo, amigos ou porque o horário lhe convém mais:</p>
+        <ol>
 
+            <li><strong style="font-weight:bold;">Faça login</strong>.</li>
+            <li><strong style="font-weight:bold;">Escolha uma turma do ano que frequenta</strong>, que integra o horario de todas as disciplinas.</li>
+            <li><strong style="font-weight:bold;">Para disciplinas em atraso, escolha uma turma</strong> que melhor se encaixe no seu horário.</li>
+            <li>Pode adicionar/remover disciplinas, de acordo com o que se inscreveu no NetPA.</li>
+        {% comment %}
+            <li>Finalizar, receber um email com informação das inscrições que realizou</li>
+        {% endcomment %}
 
-{% endif %}
+            <li><strong style="font-weight:bold;">Pode alterar as suas escolhas</strong> enquanto o período de inscrições estiver aberto. Estas preferências serão registadas nas plataformas da Lusófona.</li>
+        </ol>
 
-
+    {% endif %}
 
     {% if request.user.is_authenticated %}
         {% if inscricoes_abertas %}
@@ -119,7 +105,7 @@ div.menu a:nth-child(1) {
         </h3>
     {% endif %}
 
-
+{% endif %}
 
 </div>
 

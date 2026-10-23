@@ -167,7 +167,7 @@
 
         {% if request.user.is_authenticated  %}
 
-            <div style="padding:4px;">{{ request.user.first_name|title }} {{ request.user.last_name|title }}</div>
+            <div style="padding:4px;">{{ request.user.first_name|title }} {{ request.user.last_name|title }} ({{ request.user.username }})</div>
 
             <div class="menu" style="margin-right: 10px;">
                 <a href="{% url 'horarios:horarios' %}">Início</a>
@@ -217,6 +217,7 @@
     						<span  style="color:var(--contraste); font-weight:bold;">Para administradores</span>
     						<a href="{% url 'horarios:report-turmas' %}"  style="color:var(--contraste);">Turmas e seus alunos</a>
     						<a href="{% url 'horarios:report-alunos' %}"  style="color:var(--contraste);">Alunos e suas turmas</a>
+    						<a href="{% url 'horarios:report-alunos-csv' %}"  style="color:var(--contraste);">CSV Alunos e suas turmas</a>
     						<a href="{% url 'horarios:report-alunos-sem-turma' %}"  style="color:var(--contraste);">Alunos sem turma</a>
 
     						<a href="/admin/"  style="color:var(--contraste);">Admin Base Dados</a>

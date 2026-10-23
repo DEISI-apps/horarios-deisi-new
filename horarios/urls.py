@@ -32,11 +32,18 @@ urlpatterns = [
     path('finalizar/', views.finalizar_view, name='finalizar'),
     path('report-turmas/', views.report_view, name='report-turmas'),
     path('report-alunos/', views.report_alunos_view, name='report-alunos'),
+
+
+    path('report-alunos-numeros/', views.report_alunos_numeros_view, name='report-alunos-numeros-csv'),
+    path('report-alunos-csv/', views.report_alunos_csv_view, name='report-alunos-csv'),
     path('report-alunos-sem-turma/', views.report_alunos_nao_escolheram_turma_view, name='report-alunos-sem-turma'),
 
     path('lista_disciplinas/', views.lista_disciplinas_view, name="lista_disciplinas"),
     path('turmas_disciplina/<str:disciplina_id>', views.lista_turmas_de_disciplina_view, name="turmas_disciplina"),
     path('alunos_turma/<str:turmadisciplina_id>', views.lista_alunos_turma_view, name="alunos_turma"),
+
+
+
 
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -44,5 +51,12 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
     path('registar_aluno/', views.registar_aluno, name='registar_aluno'),
 
-    path('turma-alunos/<int:disciplina_id_dsdeisi>/<str:turma_nome>', views.turma_alunos_view)
+
+
+    # ENPOINTS for horarios - retorna JSON
+
+    path('turma-alunos/<int:disciplina_id_dsdeisi>/<str:turma_nome>', views.turma_alunos_view),
+    path('aluno-turmas/<str:numeroAluno>', views.aluno_turmas_view),
+    path('aluno-numero/<str:emailAluno>', views.aluno_numero_view),
+
 ]
